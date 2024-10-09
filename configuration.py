@@ -3,6 +3,7 @@ from routes.paciente import paciente
 from routes.psicologo import psicologo
 from routes.consulta import consulta
 from routes.disponibilidade import disponibilidade
+from routes.login import login
 
 from db.models.disponibilidade import Disponibilidade
 from db.models.paciente import Paciente
@@ -20,6 +21,7 @@ def configure_routes(app):
     app.register_blueprint(psicologo)
     app.register_blueprint(consulta)
     app.register_blueprint(disponibilidade)
+    app.register_blueprint(login)
     
 def configure_db():
     db.connect()
