@@ -35,6 +35,20 @@ def get_consulta(consulta_id):
         return jsonify(consulta)
     except Exception as e:
         return jsonify({'error': str(e)})
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['GET'])
+def get_consultas_paciente(paciente_id):
+    try:
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
+        
+        consultas_dict = [model_to_dict(consulta) for consulta in consultas]
+        for consulta in consultas_dict:
+            consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
+            consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
+        
+        return jsonify(consultas_dict)
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @consulta.route('/consulta', methods=['POST'])
 def create_consulta():
@@ -45,8 +59,9 @@ def create_consulta():
         inicio = request.json.get('inicio')
         fim = request.json.get('fim')
         paciente = request.json.get('paciente')
+        
 
-        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente)
+        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente, status='agendada')
 
         return jsonify({'message': 'Create consulta'})
     except Exception as e:
