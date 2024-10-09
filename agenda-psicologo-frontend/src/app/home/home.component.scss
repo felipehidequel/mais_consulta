@@ -1,0 +1,51 @@
+app-sidebar{
+  display: flex;
+  height: 100vh;
+}
+
+app-cards-infos{
+  width: 100%;
+}
+section{
+  display: flex;
+  background-color: #F6FCFF;
+}
+
+.home{
+  padding: 48px 24px;
+  width: 100%;
+  display: flex;
+  gap: 56px;
+  flex-direction: column;
+
+  h2{
+    font-size: 32px;
+    font-weight: bold;
+  }
+  
+  .cards{
+    display: flex;
+    gap: 58px;
+    justify-content: space-between;
+  }
+  
+  .infos{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .infos-psi{
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      h2{
+        font-size: 24px;
+      }
+      p{
+        font-size: 16px;
+        text-align: right;
+        color: #BEBEBE;
+      }
+    }
+  }
+}
