@@ -1,7 +1,7 @@
-<section>
+<section *ngFor="let psicologo of Psicologos">
   <div class="info">
     <img src="../../assets/mdi_calendar-check.svg" alt="">
-    <h3>Agendados</h3>
+    <h3>{{ psicologo.username }}</h3>
   </div>
-  <h2 class="quantidade">4</h2>
+  <h2 class="quantidade">{{ psicologo.id }}</h2>
 </section>

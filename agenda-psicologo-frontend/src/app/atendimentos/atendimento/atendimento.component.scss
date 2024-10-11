@@ -1,0 +1,68 @@
+.paciente-infos{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.paciente{
+  background-color: #F4FAFD;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+p{
+  font-size: 16px;
+  font-weight: 300;
+  color: #1E1E1E;
+}
+.status{ 
+  &-presente{
+    background-color: #B5FFC0;
+    text-align: center;
+    padding: 8px;
+    border-radius: 100px;
+  }
+}
+.w20{
+  width: 20%;
+}
+.w50{
+  width: 50%;
+}
+.w25{
+  width: 25%;
+  text-align: center;
+}
+
+form label {
+  display: inline-block;
+  margin-right: 20px;
+  cursor: pointer;
+  font-size: 30px;
+}
+
+input[type="radio"] {
+  appearance: none; 
+  width: 0; 
+  height: 0; 
+}
+
+.bi {
+  color: lightgray;
+}
+
+input[type="radio"]:checked + .bi {
+  color: green;
+}
+
+input[type="radio"]:checked + .bi-x-circle-fill {
+  color: red;
+}
+
+input[type="radio"]:disabled + .bi {
+  opacity: 0; /* Visualmente desabilitado */
+}
