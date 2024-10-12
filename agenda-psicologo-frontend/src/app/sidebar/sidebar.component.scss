@@ -36,6 +36,12 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+
+      a {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
     }
   }
 
@@ -44,9 +50,10 @@
     color: #1E1E1E;
   }
 
-  .active{
+  .active {
     border-radius: 8px;
-    &-home{
+
+    &-home {
       background-color: #CCEDFC;
     }
   }

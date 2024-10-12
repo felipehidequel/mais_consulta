@@ -21,10 +21,11 @@ p{
 }
 .status{ 
   &-presente{
-    background-color: #B5FFC0;
+    background-color: #58E16D;
     text-align: center;
     padding: 8px;
     border-radius: 100px;
+    color: #1E1E1E;
   }
 }
 .w20{
@@ -38,9 +39,12 @@ p{
   text-align: center;
 }
 
+form{
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
 form label {
-  display: inline-block;
-  margin-right: 20px;
   cursor: pointer;
   font-size: 30px;
 }
@@ -56,13 +60,13 @@ input[type="radio"] {
 }
 
 input[type="radio"]:checked + .bi {
-  color: green;
+  color: #FD5555;
 }
 
-input[type="radio"]:checked + .bi-x-circle-fill {
-  color: red;
+input[type="radio"]:checked + .bi-check-square-fill {
+  color: #58E16D;
 }
 
 input[type="radio"]:disabled + .bi {
-  opacity: 0; /* Visualmente desabilitado */
+  opacity: 0;
 }
