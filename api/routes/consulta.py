@@ -60,8 +60,9 @@ def create_consulta():
         fim = request.json.get('fim')
         paciente = request.json.get('paciente')
         
+        
 
-        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente, status='agendada')
+        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente, status='AGENDADO')
 
         return jsonify({'message': 'Create consulta'})
     except Exception as e:

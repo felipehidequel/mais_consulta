@@ -8,5 +8,5 @@ class Consulta(BaseModel):
     data = DateField()
     inicio = TimeField()
     fim = TimeField()
-    presenca = BooleanField() # "presente", "ausente"
+    presenca = BooleanField(null=True, default=None) # "presente", "ausente"
     paciente = ForeignKeyField(Paciente, backref='consultas')
