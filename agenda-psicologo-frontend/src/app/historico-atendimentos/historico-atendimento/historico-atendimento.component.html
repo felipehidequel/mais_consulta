@@ -1,6 +1,9 @@
 <section class="paciente-infos">
   <div class="paciente">
-    <p class="">Xulips Dev fullstack</p>
-    <p class="status status-presente w25">Atendido</p>
+    <p class="">{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>
+    <p [ngClass]="{'status-presente': atendimento.presenca === true, 'status-ausente': atendimento.presenca === false}"
+      class="w25 status">
+      {{ atendimento.presenca === true ? 'Presente' : atendimento.presenca === false ? 'Ausente' : 'Não definido' }}
+    </p>
   </div>
 </section>

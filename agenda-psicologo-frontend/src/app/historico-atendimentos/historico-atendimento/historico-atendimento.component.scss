@@ -1,13 +1,13 @@
-.paciente-infos{
+.paciente-infos {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.paciente{
+.paciente {
   background-color: #F4FAFD;
   display: flex;
-  justify-content: space-between ;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   gap: 16px;
@@ -15,22 +15,29 @@
   border-radius: 8px;
 }
 
-p{
+p {
   font-size: 16px;
   font-weight: 300;
   color: #1E1E1E;
 }
 
-.status{ 
-  &-presente{
-    background-color: #58E16D;
-    text-align: center;
-    padding: 8px;
-    border-radius: 100px;
-  }
+.status {
+
+  text-align: center;
+  padding: 8px;
+  border-radius: 100px;
+
 }
 
-.w25{
+.w25 {
   width: 20%;
   text-align: center;
+}
+
+.status-presente {
+  background-color: rgba(0, 178, 62, 1);
+}
+
+.status-ausente {
+  background-color: rgba(253, 85, 85, 1);
 }

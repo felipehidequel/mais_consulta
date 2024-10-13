@@ -3,25 +3,22 @@
   <div class="home">
     <div class="header-infos">
       <div class="infos">
-        <h2>Bem vindo, Felipe</h2>
+        <h2>Bem-vindo, {{ psicologo.username }}</h2> 
         <div class="infos-psi">
           <div>
-            <h2>Felipe Xulips</h2>
-            <p>CRM</p>
+            <h2>{{ psicologo.username }}</h2> 
+            <p>CRP {{ psicologo.crp }}</p> 
           </div>
-          <img src="../../assets/xulipe.png" alt="">
+          <!-- <img src="../../assets/xulipe.png" alt=""> -->
         </div>
       </div>
       <div class="cards">
-        <app-cards-infos></app-cards-infos>
-        <app-cards-infos></app-cards-infos>
-        <app-cards-infos></app-cards-infos>
+        <app-cards-infos [atendimentos]="atendimentos"></app-cards-infos>
       </div>
       <div class="atendimentos">
         <app-atendimentos></app-atendimentos>
         <app-historico-atendimentos></app-historico-atendimentos>
       </div>
     </div>
-    
   </div>
 </section>

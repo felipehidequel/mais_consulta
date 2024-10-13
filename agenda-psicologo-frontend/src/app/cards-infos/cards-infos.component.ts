@@ -1,35 +1,61 @@
-import { Component } from '@angular/core';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Component, OnInit, Input } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-cards-infos',
   standalone: true,
-  imports: [HttpClientModule, CommonModule],
+  imports: [HttpClientModule],
   templateUrl: './cards-infos.component.html',
   styleUrls: ['./cards-infos.component.scss']
 })
-export class CardsInfosComponent {
-  Psicologos: any[] = [];
-  quantidadePsicologos: number = 0; // Nova propriedade para armazenar a quantidade
+export class CardsInfosComponent implements OnInit {
+  @Input() atendimentos: any[] = []; // Recebe atendimentos como input
 
-  constructor(private http: HttpClient) { }
-
-  getPsicologos(): Observable<any> {
-    const apiUrl = 'http://127.0.0.1:5000/psicologo';
-    return this.http.get<any>(apiUrl);
-  }
+  quantidadeAtendimentos: number = 0;
+  quantidadeDisponiveis: number = 8; // Horários disponíveis por padrão
+  pacientesAtendidos: number = 0;
+  pacientesAusentes: number = 0;
 
   ngOnInit(): void {
-    this.getPsicologos().subscribe(
-      (data) => {
-        this.Psicologos = data;
-        this.quantidadePsicologos = this.Psicologos.length; // Atualiza a quantidade após obter os dados
-      },
-      (error) => {
-        console.error('Erro ao obter psicologo:', error);
-      }
-    );
+    this.calcularEstatisticas(); // Chama a função para calcular as estatísticas
+  }
+
+  calcularEstatisticas() {
+    const dataAtual = new Date(); // Data atual para comparar os atendimentos
+
+    // Filtro dos atendimentos do dia atual
+    this.quantidadeAtendimentos = this.atendimentos.filter(atendimento => {
+      const dataAtendimento = new Date(atendimento.data); // Converte a data do atendimento
+      return (
+        dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
+        dataAtendimento.getMonth() === dataAtual.getMonth() &&
+        dataAtendimento.getDate() === dataAtual.getDate()
+      );
+    }).length;
+
+    // Atualiza os horários disponíveis (padrão 8 menos os atendimentos do dia)
+    this.quantidadeDisponiveis = 8 - this.quantidadeAtendimentos;
+
+    // Contagem de pacientes atendidos (presença = true)
+    this.pacientesAtendidos = this.atendimentos.filter(atendimento => {
+      const dataAtendimento = new Date(atendimento.data); // Filtro por data do atendimento
+      return (
+        dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
+        dataAtendimento.getMonth() === dataAtual.getMonth() &&
+        dataAtendimento.getDate() === dataAtual.getDate() &&
+        atendimento.presenca === true // Apenas pacientes presentes
+      );
+    }).length;
+
+    // Contagem de pacientes ausentes (presença = false)
+    this.pacientesAusentes = this.atendimentos.filter(atendimento => {
+      const dataAtendimento = new Date(atendimento.data); // Filtro por data do atendimento
+      return (
+        dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
+        dataAtendimento.getMonth() === dataAtual.getMonth() &&
+        dataAtendimento.getDate() === dataAtual.getDate() &&
+        atendimento.presenca === false // Apenas pacientes ausentes
+      );
+    }).length;
   }
 }

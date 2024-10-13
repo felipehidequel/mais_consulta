@@ -72,15 +72,25 @@ def create_consulta():
 def update_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
-        consulta.data = request.json.get('data')
-        consulta.inicio = request.json.get('inicio')
-        consulta.fim = request.json.get('fim')
-        consulta.paciente = request.json.get('paciente')
+
+        consulta.data = request.json.get('data', consulta.data)
+        consulta.inicio = request.json.get('inicio', consulta.inicio)
+        consulta.fim = request.json.get('fim', consulta.fim)
+        consulta.paciente = request.json.get('paciente', consulta.paciente)
+        consulta.presenca = request.json.get('presenca', consulta.presenca)
+        consulta.status = request.json.get('status', consulta.status)
+
         consulta.save()
 
-        return jsonify("Update consulta")
+        consulta_dict = model_to_dict(consulta)
+        
+        consulta_dict['inicio'] = consulta.inicio.strftime('%H:%M:%S') if consulta.inicio else None
+        consulta_dict['fim'] = consulta.fim.strftime('%H:%M:%S') if consulta.fim else None
+
+        return jsonify({"message": "Consulta atualizada com sucesso", "consulta": consulta_dict})
     except Exception as e:
         return jsonify({'error': str(e)})
+
     
 @consulta.route('/consulta/<int:consulta_id>', methods=['DELETE'])
 def delete_consulta(consulta_id):

@@ -11,11 +11,8 @@
     </div>
   </div>
   <div class="prox-atendimentos">
-    <app-atendimento></app-atendimento>
-    <app-atendimento></app-atendimento>
-    <app-atendimento></app-atendimento>
-    <app-atendimento></app-atendimento>
-    <app-atendimento></app-atendimento>
-    <app-atendimento></app-atendimento>
+    <ng-container *ngFor="let atendimento of atendimentos">
+      <app-atendimento *ngIf="atendimento.presenca === null" [atendimento]="atendimento"></app-atendimento>
+    </ng-container>
   </div>
 </section>
