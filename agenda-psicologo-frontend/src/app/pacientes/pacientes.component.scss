@@ -1,0 +1,73 @@
+app-sidebar{
+  display: flex;
+  height: 100vh;
+}
+.atendimentos{
+  display: flex;
+  height: 100%;
+  gap: 40px;
+  overflow: auto;
+}
+app-atendimentos, app-historico-atendimentos{
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 0 16px rgba($color: #BEBEBE, $alpha: .3);
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+app-cards-infos{
+  width: 100%;
+  display: flex;
+  gap: 58px;
+}
+section{
+  display: flex;
+  background-color: #F6FCFF;
+}
+
+.home{
+  padding: 48px 24px;
+  width: 100%;
+  display: flex;
+  gap: 56px;
+  flex-direction: column;
+  max-height: 100vh;
+
+  h2{
+    font-size: 32px;
+    font-weight: bold;
+  }
+  .header-infos{
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    height: 100%;
+  }
+  .cards{
+    display: flex;
+    gap: 58px;
+    justify-content: space-between;
+  }
+  
+  .infos{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .infos-psi{
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      h2{
+        font-size: 24px;
+      }
+      p{
+        font-size: 16px;
+        text-align: right;
+        color: #BEBEBE;
+      }
+    }
+  }
+}

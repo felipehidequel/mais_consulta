@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule } from '@angular/router'; // Importa o módulo de roteamento
 import { HomeComponent } from './home/home.component';
+import { PacientesComponent } from './pacientes/pacientes.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet,HomeComponent],
+  standalone: true,  // Define como componente standalone
+  imports: [RouterModule,HomeComponent,PacientesComponent],  // Importa o módulo de roteamento para usar links e router-outlet
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'agenda-psicologo';
+  title = 'meu-app';
 }

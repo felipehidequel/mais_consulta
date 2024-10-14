@@ -1,0 +1,10 @@
+<!-- Botão para cadastrar um novo paciente -->
+<button mat-raised-button color="primary" (click)="openForm()">Cadastrar Paciente</button>
+
+<!-- Lista de pacientes com opção para editar -->
+<ul>
+  <li *ngFor="let paciente of pacientes">
+    {{ paciente.username }}
+    <button mat-raised-button color="accent" (click)="openForm(paciente)">Editar Paciente</button>
+  </li>
+</ul>
