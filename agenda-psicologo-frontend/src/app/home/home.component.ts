@@ -10,9 +10,10 @@ import { HistoricoAtendimentosComponent } from '../historico-atendimentos/histor
   selector: 'app-home',
   standalone: true,
   imports: [SidebarComponent, CardsInfosComponent, AtendimentosComponent, HistoricoAtendimentosComponent],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  templateUrl: './home.component.html',  // Verifique se o arquivo está no mesmo diretório
+  styleUrls: ['./home.component.scss']     // Verifique se o arquivo está no mesmo diretório
 })
+
 export class HomeComponent implements OnInit {
   atendimentos: any[] = [];
   psicologo: any = {}; // Propriedade para armazenar os dados do psicólogo
