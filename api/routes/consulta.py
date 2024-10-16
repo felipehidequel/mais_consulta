@@ -15,13 +15,16 @@ def get_consultas():
         consultas = Consulta.select()
         
         consultas_dict = [model_to_dict(consulta) for consulta in consultas]
+        
         for consulta in consultas_dict:
-            consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-            consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
+            if 'disponibilidade' in consulta:
+                consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+                consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
         
         return jsonify(consultas_dict)
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 @consulta.route('/consulta/<int:consulta_id>', methods=['GET'])
 def get_consulta(consulta_id):
@@ -29,8 +32,6 @@ def get_consulta(consulta_id):
         consulta = Consulta.get_by_id(consulta_id)
         
         consulta = model_to_dict(consulta)
-        consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-        consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
         
         return jsonify(consulta)
     except Exception as e:
@@ -43,9 +44,9 @@ def get_consultas_paciente(paciente_id):
         
         consultas_dict = [model_to_dict(consulta) for consulta in consultas]
         for consulta in consultas_dict:
-            consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-            consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
-        
+            consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+            consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
+
         return jsonify(consultas_dict)
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -56,13 +57,12 @@ def create_consulta():
         # print(request.json)
         
         data = request.json.get('data')
-        inicio = request.json.get('inicio')
-        fim = request.json.get('fim')
+        disponibilidade = request.json.get('disponibilidade')
         paciente = request.json.get('paciente')
         
         
 
-        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente, status='AGENDADO')
+        Consulta.create(data=data, disponibilidade=disponibilidade, paciente=paciente, status='AGENDADO')
 
         return jsonify({'message': 'Create consulta'})
     except Exception as e:
@@ -73,19 +73,18 @@ def update_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
 
-        consulta.data = request.json.get('data', consulta.data)
-        consulta.inicio = request.json.get('inicio', consulta.inicio)
-        consulta.fim = request.json.get('fim', consulta.fim)
-        consulta.paciente = request.json.get('paciente', consulta.paciente)
-        consulta.presenca = request.json.get('presenca', consulta.presenca)
         consulta.status = request.json.get('status', consulta.status)
+        consulta.data = request.json.get('data', consulta.data)
+        consulta.disponibilidade = request.json.get('disponibilidade', consulta.disponibilidade)
+        consulta.presenca = request.json.get('presenca', consulta.presenca)
+        consulta.paciente = request.json.get('paciente', consulta.paciente)
 
         consulta.save()
 
         consulta_dict = model_to_dict(consulta)
         
-        consulta_dict['inicio'] = consulta.inicio.strftime('%H:%M:%S') if consulta.inicio else None
-        consulta_dict['fim'] = consulta.fim.strftime('%H:%M:%S') if consulta.fim else None
+        consulta_dict['disponibilidade']['horario_inicio'] = consulta_dict['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+        consulta_dict['disponibilidade']['horario_fim'] = consulta_dict['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
 
         return jsonify({"message": "Consulta atualizada com sucesso", "consulta": consulta_dict})
     except Exception as e:
