@@ -1,8 +1,10 @@
 <section class="paciente-infos">
-  <p class="w20">{{ atendimento?.inicio ?? 'Início não disponível' }}<br>
-    {{ atendimento?.fim ?? 'Fim não disponível' }}</p>
+  <p class="w20">
+    {{ atendimento?.disponibilidade?.horario_inicio ?? 'Início não disponível' }}<br>
+    {{ atendimento?.disponibilidade?.horario_fim ?? 'Fim não disponível' }}
+  </p>
   <div class="paciente">
-    <p class="w50">{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>
+    <p class="w50">{{ atendimento?.disponibilidade?.paciente?.username ?? 'Paciente não disponível' }}</p>
     <p class="status w25 " [ngClass]="{
       'status-agendado': atendimento?.status === 'AGENDADO',
       'status-confirmado': atendimento?.status === 'CONFIRMADO',

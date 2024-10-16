@@ -1,29 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Disponibilidade } from '../class/Disponibilidade';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class DisponibilidadeService {
   private apiUrl = 'http://127.0.0.1:5000/disponibilidade';
 
   constructor(private http: HttpClient) {}
 
-  getDisponibilidades(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  getDisponibilidades(): Observable<Disponibilidade[]> {
+    return this.http.get<Disponibilidade[]>(this.apiUrl);
   }
 
-  updateDisponibilidade(disponibilidadeId: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${disponibilidadeId}`, data);
-  }
-  
-
-  removeDisponibilidade(pacienteId: number, disponibilidadeId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${disponibilidadeId}/paciente/${pacienteId}`);
+  getDisponibilidade(id: number): Observable<Disponibilidade> {
+    return this.http.get<Disponibilidade>(`${this.apiUrl}/${id}`);
   }
 
-  atualizarDisponibilidade(disponibilidadeId: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${disponibilidadeId}`, data);
+  createDisponibilidade(disponibilidade: Disponibilidade): Observable<Disponibilidade> {
+    return this.http.post<Disponibilidade>(this.apiUrl, disponibilidade);
+  }
+
+  updateDisponibilidade(id: number, disponibilidade: Disponibilidade): Observable<Disponibilidade> {
+    return this.http.put<Disponibilidade>(`${this.apiUrl}/${id}`, disponibilidade);
+  }
+
+  deleteDisponibilidade(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

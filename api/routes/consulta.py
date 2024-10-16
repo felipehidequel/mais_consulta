@@ -1,9 +1,12 @@
 from flask import Blueprint, render_template, jsonify, request
 from db.models.consulta import Consulta
 from playhouse.shortcuts import model_to_dict
+from db.models.disponibilidade import Disponibilidade
+from db.models.paciente import Paciente
+
+from flask import Blueprint
 
 consulta = Blueprint('consulta', __name__, template_folder='templates')
-
 
 """
 ROTAS PARA CONSULTA
@@ -13,91 +16,85 @@ ROTAS PARA CONSULTA
 def get_consultas():
     try:
         consultas = Consulta.select()
-        
-        consultas_dict = [model_to_dict(consulta) for consulta in consultas]
-        for consulta in consultas_dict:
-            consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-            consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
-        
+        consultas_dict = [
+            {
+                **model_to_dict(consulta),
+                'disponibilidade': {
+                    **model_to_dict(consulta.disponibilidade),
+                    'horario_inicio': consulta.disponibilidade.horario_inicio.strftime('%H:%M:%S'),
+                    'horario_fim': consulta.disponibilidade.horario_fim.strftime('%H:%M:%S')
+                } if 'disponibilidade' in model_to_dict(consulta) else {}
+            }
+            for consulta in consultas
+        ]
         return jsonify(consultas_dict)
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 @consulta.route('/consulta/<int:consulta_id>', methods=['GET'])
 def get_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
-        
-        consulta = model_to_dict(consulta)
-        consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-        consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
-        
-        return jsonify(consulta)
+        return jsonify(model_to_dict(consulta))
     except Exception as e:
         return jsonify({'error': str(e)})
     
-@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['GET'])
-def get_consultas_paciente(paciente_id):
-    try:
-        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
-        
-        consultas_dict = [model_to_dict(consulta) for consulta in consultas]
-        for consulta in consultas_dict:
-            consulta['inicio'] = consulta['inicio'].strftime('%H:%M:%S')
-            consulta['fim'] = consulta['fim'].strftime('%H:%M:%S')
-        
-        return jsonify(consultas_dict)
-    except Exception as e:
-        return jsonify({'error': str(e)})
 
 @consulta.route('/consulta', methods=['POST'])
 def create_consulta():
     try:
-        # print(request.json)
-        
         data = request.json.get('data')
-        inicio = request.json.get('inicio')
-        fim = request.json.get('fim')
-        paciente = request.json.get('paciente')
-        
-        
+        disponibilidade_id = request.json.get('disponibilidade', {}).get('id')
+        paciente_username = request.json.get('paciente', {}).get('username')
 
-        Consulta.create(data=data, inicio=inicio, fim=fim, paciente=paciente, status='AGENDADO')
+        disponibilidade_obj = Disponibilidade.get_or_none(disponibilidade_id)
 
-        return jsonify({'message': 'Create consulta'})
+        paciente_obj = Paciente.get_or_none(Paciente.username == paciente_username)
+
+        nova_consulta = Consulta.create(
+            data=data,
+            disponibilidade=disponibilidade_id,
+            status='AGENDADO',
+            paciente=paciente_obj.id
+        )
+
+        disponibilidade_obj.is_disponivel = False
+        disponibilidade_obj.paciente = paciente_obj.id
+        disponibilidade_obj.save()
+
+        return jsonify({'message': 'Consulta criada com sucesso', 'consulta_id': nova_consulta.id}), 201
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500
+
 
 @consulta.route('/consulta/<int:consulta_id>', methods=['PUT'])
 def update_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
-
-        consulta.data = request.json.get('data', consulta.data)
-        consulta.inicio = request.json.get('inicio', consulta.inicio)
-        consulta.fim = request.json.get('fim', consulta.fim)
-        consulta.paciente = request.json.get('paciente', consulta.paciente)
-        consulta.presenca = request.json.get('presenca', consulta.presenca)
         consulta.status = request.json.get('status', consulta.status)
-
+        consulta.data = request.json.get('data', consulta.data)
+        consulta.disponibilidade = request.json.get('disponibilidade', consulta.disponibilidade)
+        consulta.presenca = request.json.get('presenca', consulta.presenca)
         consulta.save()
 
         consulta_dict = model_to_dict(consulta)
-        
-        consulta_dict['inicio'] = consulta.inicio.strftime('%H:%M:%S') if consulta.inicio else None
-        consulta_dict['fim'] = consulta.fim.strftime('%H:%M:%S') if consulta.fim else None
+        consulta_dict['disponibilidade']['horario_inicio'] = consulta_dict['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+        consulta_dict['disponibilidade']['horario_fim'] = consulta_dict['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
 
         return jsonify({"message": "Consulta atualizada com sucesso", "consulta": consulta_dict})
     except Exception as e:
         return jsonify({'error': str(e)})
 
-    
-@consulta.route('/consulta/<int:consulta_id>', methods=['DELETE'])
-def delete_consulta(consulta_id):
-    try:
-        consulta = Consulta.get_by_id(consulta_id)
-        consulta.delete_instance()
 
-        return jsonify(f"consulta {consulta_id} deleted")
+@consulta.route('/consulta/all', methods=['DELETE'])
+def delete_all_consultas():
+    try:
+        # Deleta todas as consultas
+        deleted_count = Consulta.delete().execute()
+        
+        Disponibilidade.update(is_disponivel=True, paciente=None).execute()  # Restaura todas as disponibilidades
+
+        return jsonify({'message': f'{deleted_count} consultas deletadas com sucesso.'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500

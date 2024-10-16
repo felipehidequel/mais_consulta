@@ -12,3 +12,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 app-pacientes{
   display: flex;
 }
+
+.mat-typography p, .mat-typography h2{
+  margin: 0;
+}

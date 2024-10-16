@@ -1,66 +1,67 @@
 <div class="modal">
   <h2>{{ isEditMode ? 'Editar Paciente' : 'Cadastrar Paciente' }}</h2>
-  <form [formGroup]="pacienteForm" (ngSubmit)="onSubmit()">
-    <div>
-      <label for="username">Nome</label>
-      <input id="username" formControlName="username" type="text" />
-      <div *ngIf="pacienteForm.get('username')?.invalid && pacienteForm.get('username')?.touched">
-        <small *ngIf="pacienteForm.get('username')?.errors?.['required']">Nome é obrigatório.</small>
-      </div>
+<form [formGroup]="pacienteForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="username">Nome</label>
+    <input id="username" formControlName="username" type="text" />
+    <div *ngIf="pacienteForm.get('username')?.invalid && pacienteForm.get('username')?.touched">
+      <small *ngIf="pacienteForm.get('username')?.errors?.['required']">Nome é obrigatório.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="telefone">Telefone</label>
-      <input id="telefone" formControlName="telefone" type="tel" placeholder="(xx) xxxxx-xxxx" />
-      <div *ngIf="pacienteForm.get('telefone')?.invalid && pacienteForm.get('telefone')?.touched">
-        <small *ngIf="pacienteForm.get('telefone')?.errors?.['required']">Telefone é obrigatório.</small>
-      </div>
+  <div>
+    <label for="telefone">Telefone</label>
+    <input id="telefone" formControlName="telefone" type="tel" placeholder="(xx) xxxxx-xxxx" />
+    <div *ngIf="pacienteForm.get('telefone')?.invalid && pacienteForm.get('telefone')?.touched">
+      <small *ngIf="pacienteForm.get('telefone')?.errors?.['required']">Telefone é obrigatório.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="email">Email</label>
-      <input id="email" formControlName="email" type="email" />
-      <div *ngIf="pacienteForm.get('email')?.invalid && pacienteForm.get('email')?.touched">
-        <small *ngIf="pacienteForm.get('email')?.errors?.['required']">Email é obrigatório.</small>
-        <small *ngIf="pacienteForm.get('email')?.errors?.['email']">Email inválido.</small>
-      </div>
+  <div>
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" type="email" />
+    <div *ngIf="pacienteForm.get('email')?.invalid && pacienteForm.get('email')?.touched">
+      <small *ngIf="pacienteForm.get('email')?.errors?.['required']">Email é obrigatório.</small>
+      <small *ngIf="pacienteForm.get('email')?.errors?.['email']">Email inválido.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="cpf">CPF</label>
-      <input id="cpf" formControlName="cpf" type="text" placeholder="xxx.xxx.xxx-xx" />
-      <div *ngIf="pacienteForm.get('cpf')?.invalid && pacienteForm.get('cpf')?.touched">
-        <small *ngIf="pacienteForm.get('cpf')?.errors?.['required']">CPF é obrigatório.</small>
-      </div>
+  <div>
+    <label for="cpf">CPF</label>
+    <input id="cpf" formControlName="cpf" type="text" placeholder="xxx.xxx.xxx-xx" />
+    <div *ngIf="pacienteForm.get('cpf')?.invalid && pacienteForm.get('cpf')?.touched">
+      <small *ngIf="pacienteForm.get('cpf')?.errors?.['required']">CPF é obrigatório.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="dataDeNascimento">Data de Nascimento</label>
-      <input id="dataDeNascimento" formControlName="dataDeNascimento" type="text" />
-      <div *ngIf="pacienteForm.get('dataDeNascimento')?.invalid && pacienteForm.get('dataDeNascimento')?.touched">
-        <small *ngIf="pacienteForm.get('dataDeNascimento')?.errors?.['required']">Data de nascimento é
-          obrigatória.</small>
-      </div>
+  <div>
+    <label for="dataDeNascimento">Data de Nascimento</label>
+    <input id="dataDeNascimento" formControlName="dataDeNascimento" type="text" />
+    <div *ngIf="pacienteForm.get('dataDeNascimento')?.invalid && pacienteForm.get('dataDeNascimento')?.touched">
+      <small *ngIf="pacienteForm.get('dataDeNascimento')?.errors?.['required']">Data de nascimento é obrigatória.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="password">Senha</label>
-      <input id="password" formControlName="password" type="password" />
-      <div *ngIf="pacienteForm.get('password')?.invalid && pacienteForm.get('password')?.touched">
-        <small *ngIf="pacienteForm.get('password')?.errors?.['required']">Senha é obrigatória.</small>
-      </div>
+  <div>
+    <label for="password">Senha</label>
+    <input id="password" formControlName="password" type="password" />
+    <div *ngIf="pacienteForm.get('password')?.invalid && pacienteForm.get('password')?.touched">
+      <small *ngIf="pacienteForm.get('password')?.errors?.['required']">Senha é obrigatória.</small>
     </div>
+  </div>
 
-    <div>
-      <label for="disponibilidade">Disponibilidade</label>
-      <select id="disponibilidade" formControlName="disponibilidade">
-        <option *ngFor="let disponibilidade of disponibilidades" [value]="disponibilidade.id">
+  <div>
+    <label for="disponibilidade">Disponibilidade</label>
+    <select id="disponibilidade" formControlName="disponibilidade">
+      <ng-container *ngFor="let disponibilidade of disponibilidades">
+        <option *ngIf="disponibilidade.is_disponivel" [value]="disponibilidade.id">
           {{ disponibilidade.horario_inicio }} - {{ disponibilidade.horario_fim }} ({{ disponibilidade.dia_semana }})
         </option>
-      </select>
-    </div>
+      </ng-container>
+    </select>
+  </div>  
 
-    <button type="submit">{{ isEditMode ? 'Atualizar' : 'Cadastrar' }}</button>
-  </form>
+  <button type="submit">{{ isEditMode ? 'Atualizar' : 'Cadastrar' }}</button>
+</form>
 
 </div>

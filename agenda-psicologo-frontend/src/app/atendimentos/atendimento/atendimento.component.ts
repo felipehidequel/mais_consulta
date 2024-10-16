@@ -1,14 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { Disponibilidade } from '../../class/Disponibilidade';
+import { Paciente } from '../../class/Paciente';
 interface Atendimento {
   inicio: string;
   fim: string;
-  paciente: { username: string };
+  paciente: Paciente;
   status: string;
   id: number;
+  data: Date;
   presenca: boolean | null; 
+  disponibilidade?: Disponibilidade; 
 }
 
 @Component({
@@ -20,17 +23,21 @@ interface Atendimento {
 })
 export class AtendimentoComponent {
   @Input() atendimento: Atendimento | null = null;
+  ngOnInit() {
+    console.log('Paciente:', this.atendimento?.disponibilidade?.paciente?.username);
+  }
 
   constructor(private http: HttpClient) { }
 
+  // Método para atualizar a presença do atendimento
   atualizarPresenca(atendimentoId: number, statusPresenca: boolean) {
     if (this.atendimento) {
+      console.log('Paciente:', this.atendimento.paciente); // Log do objeto paciente
+
       const apiUrl = `http://127.0.0.1:5000/consulta/${atendimentoId}`;
   
-      // Atualiza localmente antes de enviar
       this.atendimento.presenca = statusPresenca;
 
-      // Enviando um objeto com a propriedade presenca
       const updatedAtendimento = {
         presenca: statusPresenca
       };

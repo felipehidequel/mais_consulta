@@ -6,6 +6,8 @@ import { DisponibilidadeService } from '../services/disponibilidade.service';
 import { ConsultaService } from '../services/consulta.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
+import { Consulta } from '../class/Consulta';
+import { Disponibilidade } from '../class/Disponibilidade';
 
 @Component({
   selector: 'app-paciente-form',
@@ -15,19 +17,31 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./paciente-form.component.scss'],
 })
 export class PacienteFormComponent implements OnInit {
-  pacienteForm: FormGroup;
+  pacienteForm!: FormGroup;
   disponibilidades: any[] = [];
-  isEditMode: boolean = false;
+  isEditMode = false;
 
   constructor(
     private fb: FormBuilder,
     private pacienteService: PacienteService,
     private disponibilidadeService: DisponibilidadeService,
     private consultaService: ConsultaService,
-    public dialogRef: MatDialogRef<PacienteFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialogRef: MatDialogRef<PacienteFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
+    this.isEditMode = data && data.paciente ? true : false; // Verifique se o paciente foi passado
+  }
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.loadDisponibilidades();
+    if (this.isEditMode) {
+      this.loadPacienteData(this.data.paciente.id); // Passa a ID do paciente
+    }
+  }
+
+  private initializeForm(): void {
     this.pacienteForm = this.fb.group({
       username: ['', Validators.required],
       telefone: ['', Validators.required],
@@ -35,166 +49,182 @@ export class PacienteFormComponent implements OnInit {
       cpf: ['', Validators.required],
       dataDeNascimento: ['', Validators.required],
       password: ['', Validators.required],
-      disponibilidade: ['', Validators.required], // Campo para vincular a disponibilidade
+      disponibilidade: ['', Validators.required]
     });
   }
 
-  ngOnInit(): void {
-    this.loadDisponibilidades();
-
-    if (this.data && this.data.paciente) {
-      this.isEditMode = true;
-      this.pacienteForm.patchValue(this.data.paciente);
-      this.pacienteForm.get('disponibilidade')?.setValue(this.data.paciente.disponibilidade_id); // Definindo o ID da disponibilidade
-    }
-  }
-
-  loadDisponibilidades() {
+  private loadDisponibilidades(): void {
     this.disponibilidadeService.getDisponibilidades().subscribe((data) => {
       this.disponibilidades = data;
     });
   }
 
-  onSubmit() {
-    if (this.pacienteForm.invalid) {
-      console.warn('Formulário inválido', this.pacienteForm.errors);
-      return;
-    }
-
-    const pacienteData = {
-      ...this.pacienteForm.value,
-      disponibilidade_id: this.pacienteForm.value.disponibilidade // Adicionando o ID da nova disponibilidade
-    };
-
-    console.log('Dados do paciente antes do POST/PUT:', pacienteData);
-
-    const saveOperation = this.isEditMode
-      ? this.pacienteService.updatePaciente(this.data.paciente.id, pacienteData)
-      : this.pacienteService.createPaciente(pacienteData);
-
-    saveOperation.subscribe({
-      next: (paciente) => {
-        console.log(this.isEditMode ? 'Paciente atualizado com sucesso' : 'Paciente criado:', paciente);
-
-        if (this.isEditMode) {
-          // Se estamos editando, desvinculamos a disponibilidade antiga
-          this.desassociarDisponibilidade(this.data.paciente.id, this.data.paciente.disponibilidade_id, pacienteData.disponibilidade_id);
-        } else {
-          // Caso de criação, vincula a nova disponibilidade diretamente
-          console.log(pacienteData)
-          this.vincularPacienteADisponibilidade(paciente.id, pacienteData.disponibilidade_id);
+  private loadPacienteData(id: number): void {
+    if (id) {
+      this.pacienteService.getPaciente(id).subscribe((paciente) => {
+        this.pacienteForm.patchValue(paciente);
+        // Se houver uma disponibilidade associada, você pode setar no formulário
+        if (paciente.disponibilidade) {
+          this.pacienteForm.controls['disponibilidade'].setValue(paciente.disponibilidade.id);
         }
+      });
+    }
+  }
 
+  onSubmit(): void {
+    if (this.pacienteForm.valid) {
+      const disponibilidadeId = this.pacienteForm.value.disponibilidade; // Obtenha apenas o ID da disponibilidade
+      if (this.isEditMode) {
+        this.updatePaciente(disponibilidadeId); // Passa o ID da disponibilidade
+      } else {
+        this.createPaciente(disponibilidadeId); // Passa o ID da disponibilidade
+      }
+    }
+  }
+
+  private createPaciente(disponibilidadeId: number): void {
+    const pacienteData = this.pacienteForm.value;
+  
+    // Buscar a disponibilidade completa pelo ID antes de criar a consulta
+    this.disponibilidadeService.getDisponibilidade(disponibilidadeId).subscribe(
+      (disponibilidade) => {
+        // Após obter a disponibilidade, criar o paciente
+        this.pacienteService.createPaciente(pacienteData).subscribe(
+          (response) => {
+            const pacienteId = response.id!;
+            const pacienteUsername = pacienteData.username;
+  
+            // Criar as consultas após o paciente ser criado e disponibilidade carregada
+            this.createConsulta(pacienteId, pacienteUsername, disponibilidadeId, disponibilidade);
+  
+            // Atualizar a disponibilidade para não disponível
+            this.updateDisponibilidade(disponibilidadeId, false);
+  
+            this.snackBar.open('Paciente cadastrado com sucesso!', 'Fechar', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          (error) => {
+            this.snackBar.open('Erro ao cadastrar paciente.', 'Fechar', { duration: 3000 });
+          }
+        );
+      },
+      (error) => {
+        this.snackBar.open('Erro ao carregar disponibilidade.', 'Fechar', { duration: 3000 });
+      }
+    );
+  }
+  
+  private updatePaciente(disponibilidadeId: number): void {
+    const pacienteData = this.pacienteForm.value;
+    const pacienteId = this.data.paciente.id; // ID do paciente que está sendo editado
+
+    // Primeiro, atualiza o paciente
+    this.pacienteService.updatePaciente(pacienteId, pacienteData).subscribe(
+      () => {
+        this.updateConsulta(pacienteId, disponibilidadeId);
+        this.updateDisponibilidade(disponibilidadeId, false); // Marcar a nova disponibilidade como não disponível
+        this.snackBar.open('Paciente atualizado com sucesso!', 'Fechar', { duration: 3000 });
         this.dialogRef.close(true);
       },
-      error: (err) => {
-        console.error(this.isEditMode ? 'Erro ao atualizar paciente:' : 'Erro ao criar paciente:', err);
-        this.openSnackBar('Erro: ' + (err.error?.message || err.message));
+      (error) => {
+        this.snackBar.open('Erro ao atualizar paciente.', 'Fechar', { duration: 3000 });
       }
-    });
+    );
   }
 
-  desassociarDisponibilidade(pacienteId: number, disponibilidadeIdAtual: number, novaDisponibilidadeId: number) {
-    // Atualiza a disponibilidade atual para marcar que não está mais em uso
-    this.disponibilidadeService.atualizarDisponibilidade(disponibilidadeIdAtual, { emUso: false, paciente: null }).subscribe({
-      next: () => {
-        console.log('Disponibilidade atualizada para não estar em uso.');
-
-        // Vincula o paciente à nova disponibilidade
-        this.vincularPacienteADisponibilidade(pacienteId, novaDisponibilidadeId);
-      },
-      error: (err) => {
-        console.error('Erro ao desassociar disponibilidade do paciente:', err);
-      }
-    });
-  }
-
-  vincularPacienteADisponibilidade(pacienteId: number, disponibilidadeId: number) {
-    // Atualiza a disponibilidade para marcar que está em uso
-    this.disponibilidadeService.atualizarDisponibilidade(disponibilidadeId, { emUso: true, paciente: pacienteId }).subscribe({
-      next: () => {
-        console.log('Disponibilidade atualizada para estar em uso.');
-        
-        // Vincula o paciente à nova disponibilidade
-        this.disponibilidadeService.updateDisponibilidade(pacienteId, disponibilidadeId).subscribe({
-          next: () => {
-            console.log('Paciente vinculado à nova disponibilidade com sucesso!');
-            this.createConsultas(pacienteId, disponibilidadeId);
-          },
-          error: (err) => {
-            console.error('Erro ao vincular paciente à nova disponibilidade:', err);
-          }
-        });
-      },
-      error: (err) => {
-        console.error('Erro ao atualizar disponibilidade:', err);
-      }
-    });
-  }
-
-  createConsultas(pacienteId: number, disponibilidadeId: number) {
-    const disponibilidade = this.disponibilidades.find(d => d.id === disponibilidadeId);
-
-    if (disponibilidade) {
-      const currentDate = new Date();
-      const currentDay = currentDate.getDay();
-      const targetDay = this.getDayOfWeekIndex(disponibilidade.dia_semana);
-
-      let firstConsultaDate = new Date(currentDate);
-      firstConsultaDate.setDate(currentDate.getDate() + ((targetDay - currentDay + 7) % 7));
-
-      for (let i = 0; i < 10; i++) {
-        const consultaDate = new Date(firstConsultaDate);
-        consultaDate.setDate(firstConsultaDate.getDate() + i * 7);
-
-        this.consultaService.createConsulta({
-          data: consultaDate.toISOString().split('T')[0],
-          inicio: disponibilidade.horario_inicio,
-          fim: disponibilidade.horario_fim,
-          paciente: pacienteId,
-        }).subscribe({
-          next: () => console.log('Consulta criada com sucesso.'),
-          error: (err) => console.error('Erro ao criar consulta:', err)
-        });
-      }
+  private createConsulta(pacienteId: number, pacienteUsername: string, disponibilidadeId: number, disponibilidade: any): void {
+    const pacienteData = this.pacienteForm.value;
+    const consultas = [];
+  
+    // Define a data inicial para a consulta com base no dia da semana e horário de início
+    const diasSemana: { [key: string]: number } = {
+      'domingo': 0,
+      'segunda': 1,
+      'terça': 2,
+      'quarta': 3,
+      'quinta': 4,
+      'sexta': 5,
+      'sábado': 6
+    };
+  
+    const diaSemana = diasSemana[disponibilidade.dia_semana.toLowerCase()];
+    const hoje = new Date();
+    let proximaData = new Date();
+    proximaData.setDate(hoje.getDate() + ((6 + diaSemana - hoje.getDay()) % 7));
+    proximaData.setHours(parseInt(disponibilidade.horario_inicio.split(':')[0]), parseInt(disponibilidade.horario_inicio.split(':')[1]));
+  
+    // Criar 4 consultas, uma a cada semana no mesmo dia e horário
+    for (let i = 0; i < 4; i++) {
+      const dataConsulta = new Date(proximaData);
+      dataConsulta.setDate(proximaData.getDate() + (7 * i));
+  
+      const consultaData = {
+        data: dataConsulta.toISOString(),
+        disponibilidade: {
+          id: disponibilidadeId,
+          is_disponivel: false
+        },
+        paciente: {
+          id: pacienteData.id,
+          username: pacienteData.username,
+          telefone: pacienteData.telefone,
+          email: pacienteData.email,
+          cpf: pacienteData.cpf,
+          dataDeNascimento: pacienteData.dataDeNascimento,
+          password: pacienteData.password
+        }
+      };
+  
+      consultas.push(consultaData);
     }
+  
+    // Iterar e criar cada consulta
+    consultas.forEach(consulta => {
+      this.consultaService.createConsulta(consulta).subscribe(
+        () => {
+          this.snackBar.open('Consulta criada com sucesso!', 'Fechar', { duration: 3000 });
+        },
+        (error) => {
+          this.snackBar.open('Erro ao criar consulta.', 'Fechar', { duration: 3000 });
+        }
+      );
+    });
   }
+  
 
-  getDayOfWeekIndex(diaSemana: string): number {
-    const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
-    return diasSemana.indexOf(diaSemana.toLowerCase());
-  }
 
-  openSnackBar(message: string) {
-    this.snackBar.open(message, 'Fechar', {
-      duration: 3000,
+  private updateConsulta(pacienteId: number, disponibilidadeId: number): void {
+    this.consultaService.getConsultaByPacienteId(pacienteId).subscribe((consultas: Consulta[]) => {
+      if (consultas.length > 0) {
+        const consulta = consultas[0]; // Pegue a primeira consulta se houver mais de uma
+        consulta.disponibilidade = disponibilidadeId; // Atualiza a disponibilidade na consulta
+        this.consultaService.updateConsulta(consulta.id!, consulta).subscribe(
+          () => {
+            this.snackBar.open('Consulta atualizada com sucesso!', 'Fechar', { duration: 3000 });
+          },
+          (error) => {
+            this.snackBar.open('Erro ao atualizar consulta.', 'Fechar', { duration: 3000 });
+          }
+        );
+      }
     });
   }
 
-  deletePaciente() {
-    const pacienteId = this.data.paciente.id; // ID do paciente a ser deletado
-    const disponibilidadeId = this.data.paciente.disponibilidade_id; // ID da disponibilidade associada
+  private updateDisponibilidade(disponibilidadeId: number, isAvailable: boolean): void {
+    this.disponibilidadeService.getDisponibilidade(disponibilidadeId).subscribe((disponibilidade) => {
+      const updatedDisponibilidade: Disponibilidade = {
+        ...disponibilidade,
+        is_disponivel: isAvailable
+      };
 
-    this.pacienteService.deletePaciente(pacienteId).subscribe({
-      next: () => {
-        console.log('Paciente deletado com sucesso.');
-
-        // Reativa a disponibilidade
-        this.disponibilidadeService.atualizarDisponibilidade(disponibilidadeId, { emUso: false, paciente: null }).subscribe({
-          next: () => {
-            console.log('Disponibilidade reativada com sucesso.');
-            this.dialogRef.close(true); // Fecha o diálogo
-            this.openSnackBar('Paciente deletado e disponibilidade reativada.');
-          },
-          error: (err) => {
-            console.error('Erro ao reativar disponibilidade:', err);
-          }
-        });
-      },
-      error: (err) => {
-        console.error('Erro ao deletar paciente:', err);
-        this.openSnackBar('Erro ao deletar paciente: ' + (err.error?.message || err.message));
-      }
+      this.disponibilidadeService.updateDisponibilidade(disponibilidadeId, updatedDisponibilidade).subscribe(
+        () => {
+          this.snackBar.open('Disponibilidade atualizada com sucesso!', 'Fechar', { duration: 3000 });
+        },
+        (error) => {
+          this.snackBar.open('Erro ao atualizar disponibilidade.', 'Fechar', { duration: 3000 });
+        }
+      );
     });
   }
 }

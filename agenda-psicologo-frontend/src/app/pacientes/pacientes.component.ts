@@ -4,6 +4,8 @@ import { PacienteFormComponent } from '../paciente-form/paciente-form.component'
 import { PacienteService } from '../services/paciente.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { ConsultaService } from '../services/consulta.service';
 
 @Component({
   selector: 'app-pacientes',
@@ -18,8 +20,9 @@ export class PacientesComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private pacienteService: PacienteService
-  ) {}
+    private pacienteService: PacienteService,
+    private consultaService: ConsultaService // Injetar o ConsultaService
+  ) { }
 
   ngOnInit(): void {
     this.loadPacientes();
@@ -61,6 +64,24 @@ export class PacientesComponent implements OnInit {
         },
         (error) => {
           console.error('Erro ao deletar paciente:', error);
+        }
+      );
+    }}
+  
+
+  deleteAllConsultas(pacienteId: number) { // Adicione o ID do paciente como parâmetro
+    if (confirm("Você tem certeza que deseja deletar todas as consultas?")) {
+      this.consultaService.deleteAllConsultas().subscribe(
+        () => {
+          console.log('Todas as consultas deletadas com sucesso.');
+
+          // Aqui você chama deletePaciente passando o pacienteId
+          this.deletePaciente(pacienteId); // Chame a função deletePaciente com o ID do paciente
+
+          this.loadPacientes(); // Recarregar a lista de pacientes (ou consultas)
+        },
+        (error) => {
+          console.error('Erro ao deletar todas as consultas:', error);
         }
       );
     }

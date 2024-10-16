@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit {
         console.error('Erro ao obter atendimentos:', error);
       }
     );
+    
 
     this.getPsicologo().subscribe(
       (data) => {
@@ -46,7 +47,7 @@ export class HomeComponent implements OnInit {
   }
 
   getPsicologo(): Observable<any> {
-    const apiUrl = 'http://127.0.0.1:5000/psicologo'; // Altere para a URL correta da API que retorna os dados do psicólogo
+    const apiUrl = 'http://127.0.0.1:5000/psicologo';
     return this.http.get<any>(apiUrl);
   }
 }

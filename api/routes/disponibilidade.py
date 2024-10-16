@@ -72,25 +72,17 @@ def update_disponibilidade(disponibilidade_id):
     try:
         disponibilidade = Disponibilidade.get_by_id(disponibilidade_id)
 
-        # Obter o novo paciente se houver
         paciente_id = request.json.get('paciente')  # Novo paciente a ser vinculado
-        if paciente_id is None:
-            # Se não for um novo paciente, manter a associação anterior
-            paciente_id = disponibilidade.paciente
-        
-        # Desvincular o paciente atual
-        if disponibilidade.paciente:
-            disponibilidade.paciente = None
-            disponibilidade.bolando_disponivel = True  # Marca como disponível
-            disponibilidade.save()
 
-        # Atualiza a disponibilidade para o novo paciente
-        if paciente_id:
-            disponibilidade.paciente = paciente_id
-            disponibilidade.bolando_disponivel = False  # Marca como indisponível
-        else:
-            disponibilidade.paciente = None
-        
+        # Se um paciente foi passado, verificar se ele existe
+        if paciente_id and not Paciente.select().where(Paciente.id == paciente_id).exists():
+            return jsonify({'error': 'Paciente não encontrado.'}), 404
+
+        # Atribuir valores do request, verificando se eles estão presentes
+        disponibilidade.paciente = paciente_id or disponibilidade.paciente  # Atualizar se um novo paciente foi fornecido
+        disponibilidade.horario_inicio = request.json.get('horario_inicio', disponibilidade.horario_inicio)
+        disponibilidade.horario_fim = request.json.get('horario_fim', disponibilidade.horario_fim)
+
         # Salva e confirma atualização
         disponibilidade.save()
 
