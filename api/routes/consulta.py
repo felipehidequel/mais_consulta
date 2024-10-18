@@ -118,3 +118,30 @@ def delete_all_consultas():
         return jsonify({'message': f'{deleted_count} consultas deletadas com sucesso.'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['PUT'])
+def update_consulta_by_paciente(paciente_id):
+    try:
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
+        
+        for consulta in consultas:
+            consulta.status = request.json.get('status', consulta.status)
+            consulta.presenca = request.json.get('presenca', consulta.presenca)
+            consulta.save()
+        
+        return jsonify({"message": "Consultas atualizadas com sucesso"})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['DELETE'])
+def delete_consultas_by_paciente(paciente_id):
+    try:
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
+        
+        for consulta in consultas:
+            consulta.disponibilidade.is_disponivel = True
+            consulta.delete_instance()
+        
+        return jsonify({"message": "Consultas deletadas com sucesso"})
+    except Exception as e:
+        return jsonify({'error': str(e)})
