@@ -9,4 +9,3 @@ class Consulta(BaseModel):
     data = DateField()
     disponibilidade = ForeignKeyField(Disponibilidade, backref='consultas')
     presenca = BooleanField(null=True, default=None) # "presente", "ausente"
-    paciente = ForeignKeyField(Paciente, backref='consultas')

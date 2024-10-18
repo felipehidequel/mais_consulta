@@ -1,0 +1,114 @@
+app-sidebar {
+  display: flex;
+  height: 100vh;
+}
+
+section {
+  display: flex;
+  background-color: #F6FCFF;
+}
+
+.pacientes {
+  padding: 48px 24px;
+  width: 100%;
+  display: flex;
+  gap: 56px;
+  flex-direction: column;
+  max-height: 100vh;
+
+  h2 {
+    font-size: 32px;
+    font-weight: bold;
+  }
+
+  .pacientes {
+    background-color: #fff;
+    height: 100vh;
+    overflow: auto;
+    border-radius: 16px;
+  }
+
+  .paciente {
+    background-color: #F4FAFD;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+    padding: 24px;
+    border-radius: 8px;
+  }
+
+  p {
+    color: #1E1E1E;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .w20 {
+    width: 20%;
+    text-align: center;
+  }
+
+  .w40 {
+    width: 40%;
+
+  }
+
+  .infos-pacientes {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    padding: 24px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .btn-cadastro{
+      font-size: 16px;
+      color: #fff;
+      background-color: #04A9F5;
+      padding: 16px;
+      border: none;
+      cursor: pointer; 
+      transition: all ease-in-out .5s; 
+      border-radius: 8px;
+      &:hover{
+        background-color:#0484bf ;
+      }
+  }
+
+  .cadastro{
+    display: flex;
+    flex-direction: row;
+  }
+
+  .icons{
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    .refresh{
+      background: #04A9F5;
+    }
+    .edit{
+      background: #00B23E;
+    }
+    .delete{
+      background: #FD5555;
+    }
+    i{
+      border-radius: 4px;
+      color: #1E1E1E;
+      padding: 8px;
+      &:hover{
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.modal{
+  padding: 24px;
+}

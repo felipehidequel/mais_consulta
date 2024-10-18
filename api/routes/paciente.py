@@ -31,7 +31,7 @@ def create_paciente():
         email = request.json.get('email')
         cpf = request.json.get('cpf')
         dataDeNascimento = request.json.get('dataDeNascimento')
-        Paciente.create(username=username, password=password, telefone=telefone, email=email, cpf=cpf, dataDeNascimento=dataDeNascimento)
+        paciente = Paciente.create(username=username, password=password, telefone=telefone, email=email, cpf=cpf, dataDeNascimento=dataDeNascimento)
         
         return jsonify({'message': 'Create paciente'})
     except Exception as e:
@@ -63,8 +63,8 @@ def update_paciente(paciente_id):
 @paciente.route('/paciente/<int:paciente_id>', methods=['DELETE'])
 def delete_paciente(paciente_id):
     try:
-        Paciente.get_by_id(paciente_id).delete_instance()
-
-        return jsonify({'message': f'Delete paciente with ID {paciente_id}'})
+        paciente = Paciente.get_by_id(paciente_id)
+        paciente.delete_instance()
+        return jsonify({"message": "Paciente deletado com sucesso"}), 200
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500

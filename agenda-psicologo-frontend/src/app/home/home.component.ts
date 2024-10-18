@@ -10,9 +10,10 @@ import { HistoricoAtendimentosComponent } from '../historico-atendimentos/histor
   selector: 'app-home',
   standalone: true,
   imports: [SidebarComponent, CardsInfosComponent, AtendimentosComponent, HistoricoAtendimentosComponent],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  templateUrl: './home.component.html',  // Verifique se o arquivo está no mesmo diretório
+  styleUrls: ['./home.component.scss']     // Verifique se o arquivo está no mesmo diretório
 })
+
 export class HomeComponent implements OnInit {
   atendimentos: any[] = [];
   psicologo: any = {}; // Propriedade para armazenar os dados do psicólogo
@@ -28,6 +29,7 @@ export class HomeComponent implements OnInit {
         console.error('Erro ao obter atendimentos:', error);
       }
     );
+    
 
     this.getPsicologo().subscribe(
       (data) => {
@@ -45,7 +47,7 @@ export class HomeComponent implements OnInit {
   }
 
   getPsicologo(): Observable<any> {
-    const apiUrl = 'http://127.0.0.1:5000/psicologo'; // Altere para a URL correta da API que retorna os dados do psicólogo
+    const apiUrl = 'http://127.0.0.1:5000/psicologo';
     return this.http.get<any>(apiUrl);
   }
 }

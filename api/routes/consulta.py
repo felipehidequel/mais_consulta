@@ -1,9 +1,12 @@
 from flask import Blueprint, render_template, jsonify, request
 from db.models.consulta import Consulta
 from playhouse.shortcuts import model_to_dict
+from db.models.disponibilidade import Disponibilidade
+from db.models.paciente import Paciente
+
+from flask import Blueprint
 
 consulta = Blueprint('consulta', __name__, template_folder='templates')
-
 
 """
 ROTAS PARA CONSULTA
@@ -13,14 +16,17 @@ ROTAS PARA CONSULTA
 def get_consultas():
     try:
         consultas = Consulta.select()
-        
-        consultas_dict = [model_to_dict(consulta) for consulta in consultas]
-        
-        for consulta in consultas_dict:
-            if 'disponibilidade' in consulta:
-                consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
-                consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
-        
+        consultas_dict = [
+            {
+                **model_to_dict(consulta),
+                'disponibilidade': {
+                    **model_to_dict(consulta.disponibilidade),
+                    'horario_inicio': consulta.disponibilidade.horario_inicio.strftime('%H:%M:%S'),
+                    'horario_fim': consulta.disponibilidade.horario_fim.strftime('%H:%M:%S')
+                } if 'disponibilidade' in model_to_dict(consulta) else {}
+            }
+            for consulta in consultas
+        ]
         return jsonify(consultas_dict)
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -32,6 +38,8 @@ def get_consulta(consulta_id):
         consulta = Consulta.get_by_id(consulta_id)
         
         consulta = model_to_dict(consulta)
+        consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+        consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
         
         return jsonify(consulta)
     except Exception as e:
@@ -50,39 +58,48 @@ def get_consultas_paciente(paciente_id):
         return jsonify(consultas_dict)
     except Exception as e:
         return jsonify({'error': str(e)})
+        return jsonify(model_to_dict(consulta))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
 
 @consulta.route('/consulta', methods=['POST'])
 def create_consulta():
     try:
-        # print(request.json)
-        
         data = request.json.get('data')
-        disponibilidade = request.json.get('disponibilidade')
-        paciente = request.json.get('paciente')
-        
-        
+        disponibilidade_id = request.json.get('disponibilidade', {}).get('id')
+        paciente_username = request.json.get('paciente', {}).get('username')
 
-        Consulta.create(data=data, disponibilidade=disponibilidade, paciente=paciente, status='AGENDADO')
+        disponibilidade_obj = Disponibilidade.get_or_none(disponibilidade_id)
 
-        return jsonify({'message': 'Create consulta'})
+        paciente_obj = Paciente.get_or_none(Paciente.username == paciente_username)
+
+        nova_consulta = Consulta.create(
+            data=data,
+            disponibilidade=disponibilidade_id,
+            status='AGENDADO',
+            paciente=paciente_obj.id
+        )
+
+        disponibilidade_obj.is_disponivel = False
+        disponibilidade_obj.save()
+
+        return jsonify({'message': 'Consulta criada com sucesso', 'consulta_id': nova_consulta.id}), 201
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500
+
 
 @consulta.route('/consulta/<int:consulta_id>', methods=['PUT'])
 def update_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
-
         consulta.status = request.json.get('status', consulta.status)
         consulta.data = request.json.get('data', consulta.data)
         consulta.disponibilidade = request.json.get('disponibilidade', consulta.disponibilidade)
         consulta.presenca = request.json.get('presenca', consulta.presenca)
-        consulta.paciente = request.json.get('paciente', consulta.paciente)
-
         consulta.save()
 
         consulta_dict = model_to_dict(consulta)
-        
         consulta_dict['disponibilidade']['horario_inicio'] = consulta_dict['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
         consulta_dict['disponibilidade']['horario_fim'] = consulta_dict['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
 
@@ -90,13 +107,14 @@ def update_consulta(consulta_id):
     except Exception as e:
         return jsonify({'error': str(e)})
 
-    
-@consulta.route('/consulta/<int:consulta_id>', methods=['DELETE'])
-def delete_consulta(consulta_id):
-    try:
-        consulta = Consulta.get_by_id(consulta_id)
-        consulta.delete_instance()
 
-        return jsonify(f"consulta {consulta_id} deleted")
+@consulta.route('/consulta/all', methods=['DELETE'])
+def delete_all_consultas():
+    try:
+        deleted_count = Consulta.delete().execute()
+        
+        Disponibilidade.update(is_disponivel=True, paciente=None).execute()
+
+        return jsonify({'message': f'{deleted_count} consultas deletadas com sucesso.'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500
