@@ -1,9 +1,0 @@
-<section class="paciente-infos">
-  <div class="paciente">
-    <p class="">{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>
-    <p [ngClass]="{'status-presente': atendimento.presenca === true, 'status-ausente': atendimento.presenca === false}"
-      class="w25 status">
-      {{ atendimento.presenca === true ? 'Presente' : atendimento.presenca === false ? 'Ausente' : 'Não definido' }}
-    </p>
-  </div>
-</section>
