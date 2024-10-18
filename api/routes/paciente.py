@@ -44,7 +44,9 @@ def update_paciente(paciente_id):
         password = request.json.get('password')
         telefone = request.json.get('telefone')
         email = request.json.get('email')
-        cpf = request.json.get('cpf')
+        cpf = request.json.get('cpf') 
+        quantidadeConsulta = request.json.get('quantidadeConsulta')
+
         dataDeNascimento = request.json.get('dataDeNascimento')
         
         paciente = Paciente.get_by_id(paciente_id)
@@ -54,6 +56,8 @@ def update_paciente(paciente_id):
         paciente.email = email
         paciente.cpf = cpf
         paciente.dataDeNascimento = dataDeNascimento
+        paciente.quantidadeConsulta = quantidadeConsulta
+
         paciente.save()
         
         return jsonify({'message': f'Update paciente with ID {paciente_id}'})
@@ -68,3 +72,4 @@ def delete_paciente(paciente_id):
         return jsonify({"message": "Paciente deletado com sucesso"}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    

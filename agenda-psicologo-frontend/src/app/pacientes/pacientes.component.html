@@ -22,7 +22,7 @@
       <p class="w20">{{ paciente.telefone }}</p>
       <div class="w20 icons">
         <i class="bi bi-pencil-fill edit" (click)="openForm(paciente.id)"></i> 
-        <i class="bi bi-arrow-clockwise refresh" (click)="refreshConsulta(paciente.id)"></i> 
+        <i class="bi bi-arrow-clockwise refresh" (click)="createFutureConsultas(paciente.id)"></i> 
         <i class="bi bi-trash-fill delete" (click)="deletePaciente(paciente.id)"></i> 
       </div>      
     </div>

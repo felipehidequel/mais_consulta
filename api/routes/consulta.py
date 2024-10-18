@@ -48,8 +48,21 @@ def get_consulta(consulta_id):
 @consulta.route('/consulta/paciente/<int:paciente_id>', methods=['GET'])
 def get_consultas_paciente(paciente_id):
     try:
+        limit = request.args.get('limit', type=int)
+        sort = request.args.get('sort', default='asc')
+
+        # Filtra as consultas pelo paciente e ordena pela data
         consultas = Consulta.select().where(Consulta.paciente == paciente_id)
-        
+
+        if sort == 'desc':
+            consultas = consultas.order_by(Consulta.data.desc())
+        else:
+            consultas = consultas.order_by(Consulta.data.asc())
+
+        if limit:
+            consultas = consultas.limit(limit)
+
+        # Convertendo para dicionário
         consultas_dict = [model_to_dict(consulta) for consulta in consultas]
         for consulta in consultas_dict:
             consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
@@ -57,11 +70,7 @@ def get_consultas_paciente(paciente_id):
 
         return jsonify(consultas_dict)
     except Exception as e:
-        return jsonify({'error': str(e)})
-        return jsonify(model_to_dict(consulta))
-    except Exception as e:
-        return jsonify({'error': str(e)})
-    
+        return jsonify({'error': str(e)}), 500
 
 @consulta.route('/consulta', methods=['POST'])
 def create_consulta():
@@ -88,7 +97,6 @@ def create_consulta():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @consulta.route('/consulta/<int:consulta_id>', methods=['PUT'])
 def update_consulta(consulta_id):
     try:
@@ -97,6 +105,11 @@ def update_consulta(consulta_id):
         consulta.data = request.json.get('data', consulta.data)
         consulta.disponibilidade = request.json.get('disponibilidade', consulta.disponibilidade)
         consulta.presenca = request.json.get('presenca', consulta.presenca)
+                # Atualizar quantidade de consultas do paciente
+        quantidade_consulta = request.json.get('quantidadeConsulta')
+        if quantidade_consulta is not None:
+            consulta.paciente.quantidadeConsulta = quantidade_consulta
+            consulta.paciente.save()  # Salvar a atualização no paciente
         consulta.save()
 
         consulta_dict = model_to_dict(consulta)
@@ -115,6 +128,7 @@ def update_consulta_by_paciente(paciente_id):
         for consulta in consultas:
             consulta.status = request.json.get('status', consulta.status)
             consulta.presenca = request.json.get('presenca', consulta.presenca)
+            
             consulta.save()
         
         return jsonify({"message": "Consultas atualizadas com sucesso"})
@@ -140,4 +154,5 @@ def delete_consultas_by_paciente(paciente_id):
     except Exception as e:
         print(f"Erro ao deletar consultas para paciente {paciente_id}: {str(e)}")  # Log detalhado
         return jsonify({'error': str(e)})
+
 

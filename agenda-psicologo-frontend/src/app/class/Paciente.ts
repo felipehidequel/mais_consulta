@@ -6,7 +6,7 @@ export class Paciente {
   cpf: string;
   dataDeNascimento: Date;
   password: string;
-
+  quantidadeConsulta: number;
   constructor(
     id: number,
     username: string,
@@ -15,7 +15,8 @@ export class Paciente {
     cpf: string,
     dataDeNascimento: Date,
     password: string,
-    disponibilidade?: { id: number }
+    quantidadeConsulta: number,
+    disponibilidade?: { id: number },
   ) {
     this.id = id;
     this.username = username;
@@ -24,5 +25,6 @@ export class Paciente {
     this.cpf = cpf;
     this.dataDeNascimento = dataDeNascimento;
     this.password = password;
+    this.quantidadeConsulta = quantidadeConsulta
   }
 }

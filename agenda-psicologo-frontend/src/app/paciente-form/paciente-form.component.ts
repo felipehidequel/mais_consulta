@@ -62,7 +62,7 @@ export class PacienteFormComponent implements OnInit {
 
   private loadPacienteData(id: number): void {
     if (id) {
-      this.pacienteService.getPaciente(id).subscribe((paciente) => {
+      this.pacienteService.getPacienteById(id).subscribe((paciente) => {
         this.pacienteForm.patchValue(paciente);
       });
     }
@@ -174,6 +174,7 @@ export class PacienteFormComponent implements OnInit {
           email: pacienteData.email,
           cpf: pacienteData.cpf,
           dataDeNascimento: pacienteData.dataDeNascimento,
+          quantidadeConsulta:pacienteData.quantidadeConsulta,
           password: pacienteData.password
         }
       };

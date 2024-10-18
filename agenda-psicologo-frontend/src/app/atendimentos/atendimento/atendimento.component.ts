@@ -1,16 +1,17 @@
+import { Paciente } from './../../class/Paciente';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Disponibilidade } from '../../class/Disponibilidade';
-import { Paciente } from '../../class/Paciente';
+
 interface Atendimento {
   inicio: string;
   fim: string;
-  paciente?: Paciente;
+  paciente: Paciente;
   status: string;
   id: number;
-  presenca: boolean | null; 
-  disponibilidade?: Disponibilidade; 
+  presenca: boolean | null;
+  disponibilidade?: Disponibilidade;
 }
 
 @Component({
@@ -30,13 +31,13 @@ export class AtendimentoComponent {
     if (this.atendimento) {
 
       const apiUrl = `http://127.0.0.1:5000/consulta/${atendimentoId}`;
-  
+
       this.atendimento.presenca = statusPresenca;
-
+      
       const updatedAtendimento = {
-        presenca: statusPresenca
+        presenca: statusPresenca,
+        quantidadeConsulta: this.atendimento.paciente.quantidadeConsulta += 1
       };
-
 
       this.http.put(apiUrl, updatedAtendimento).subscribe(
         response => {

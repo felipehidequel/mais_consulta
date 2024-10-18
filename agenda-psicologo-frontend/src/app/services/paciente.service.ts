@@ -15,7 +15,7 @@ export class PacienteService {
     return this.http.get<Paciente[]>(this.apiUrl);
   }
 
-  getPaciente(id: number): Observable<Paciente> {
+  getPacienteById(id: number): Observable<Paciente> {
     return this.http.get<Paciente>(`${this.apiUrl}/${id}`);
   }
 
@@ -25,9 +25,10 @@ export class PacienteService {
 
   updatePaciente(id: number, paciente: Paciente): Observable<Paciente> {
     return this.http.put<Paciente>(`${this.apiUrl}/${id}`, paciente);
-  }
+}
 
   deletePaciente(pacienteId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${pacienteId}`);
   }
+  
 }

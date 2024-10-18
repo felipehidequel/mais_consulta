@@ -41,5 +41,9 @@ export class ConsultaService {
   liberarDisponibilidade(disponibilidadeId: number): Observable<void> {
     return this.http.put<void>(`http://127.0.0.1:5000/disponibilidade/${disponibilidadeId}`, { is_disponivel: true });
   }
-  
+
+  getUltimaConsultaByPacienteId(pacienteId: number): Observable<Consulta[]> {
+    return this.http.get<Consulta[]>(`${this.apiUrl}/paciente/${pacienteId}?limit=1&sort=desc`);
+  }  
+
 }

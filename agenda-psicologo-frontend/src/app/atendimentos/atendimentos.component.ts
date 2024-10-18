@@ -9,12 +9,13 @@ import { Disponibilidade } from '../class/Disponibilidade';
 interface Atendimento {
   inicio: string;
   fim: string;
-  paciente?: Paciente;
+  paciente: Paciente;
   status: string;
   id: number;
   presenca: boolean | null;
   disponibilidade?: Disponibilidade;
 }
+
 @Component({
   selector: 'app-atendimentos',
   standalone: true,
