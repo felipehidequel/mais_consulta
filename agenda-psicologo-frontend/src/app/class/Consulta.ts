@@ -1,12 +1,15 @@
+import { Disponibilidade } from "./Disponibilidade";
+import { Paciente } from "./Paciente";
+
 export class Consulta {
   id?: number;
-  paciente: number;
+  paciente: Paciente;
   status: string;
   data: string;
-  disponibilidade: number;
+  disponibilidade: Disponibilidade;
   presenca?: boolean;
 
-  constructor(paciente: number, status: string, data: string, disponibilidade: number, presenca?: boolean) {
+  constructor(paciente: Paciente, status: string, data: string, disponibilidade: Disponibilidade, presenca?: boolean) {
     this.paciente = paciente;
     this.status = status; // Adicionando a inicialização da propriedade 'status'
     this.data = data;

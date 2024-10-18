@@ -5,7 +5,7 @@ import { Consulta } from '../class/Consulta';
 import { Paciente } from '../class/Paciente';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConsultaService {
   private apiUrl = 'http://127.0.0.1:5000/consulta';
@@ -28,11 +28,18 @@ export class ConsultaService {
     return this.http.put<Consulta>(`${this.apiUrl}/${id}`, consulta);
   }
 
-  deleteAllConsultas(): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/all`);
+  deleteConsulta(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getConsultaByPacienteId(pacienteId: number): Observable<Consulta[]> { 
-    return this.http.get<Consulta[]>(`${this.apiUrl}/consulta/paciente/${pacienteId}`);
+  getConsultaByPacienteId(pacienteId: number): Observable<Consulta[]> {
+    return this.http.get<Consulta[]>(`${this.apiUrl}/paciente/${pacienteId}`);
   }
+  deleteConsultasByPaciente(pacienteId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/paciente/${pacienteId}`);
+  }
+  liberarDisponibilidade(disponibilidadeId: number): Observable<void> {
+    return this.http.put<void>(`http://127.0.0.1:5000/disponibilidade/${disponibilidadeId}`, { is_disponivel: true });
+  }
+  
 }

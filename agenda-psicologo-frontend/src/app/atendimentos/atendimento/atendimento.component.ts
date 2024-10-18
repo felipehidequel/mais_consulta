@@ -6,10 +6,9 @@ import { Paciente } from '../../class/Paciente';
 interface Atendimento {
   inicio: string;
   fim: string;
-  paciente: Paciente;
+  paciente?: Paciente;
   status: string;
   id: number;
-  data: Date;
   presenca: boolean | null; 
   disponibilidade?: Disponibilidade; 
 }
@@ -23,16 +22,12 @@ interface Atendimento {
 })
 export class AtendimentoComponent {
   @Input() atendimento: Atendimento | null = null;
-  ngOnInit() {
-    console.log('Paciente:', this.atendimento?.disponibilidade?.paciente?.username);
-  }
 
   constructor(private http: HttpClient) { }
 
   // Método para atualizar a presença do atendimento
   atualizarPresenca(atendimentoId: number, statusPresenca: boolean) {
     if (this.atendimento) {
-      console.log('Paciente:', this.atendimento.paciente); // Log do objeto paciente
 
       const apiUrl = `http://127.0.0.1:5000/consulta/${atendimentoId}`;
   
@@ -42,7 +37,6 @@ export class AtendimentoComponent {
         presenca: statusPresenca
       };
 
-      console.log('Enviando dados:', updatedAtendimento);
 
       this.http.put(apiUrl, updatedAtendimento).subscribe(
         response => {

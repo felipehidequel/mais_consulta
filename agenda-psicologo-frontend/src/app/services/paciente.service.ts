@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Paciente } from '../class/Paciente';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PacienteService {
   private apiUrl = 'http://127.0.0.1:5000/paciente';
@@ -27,7 +27,7 @@ export class PacienteService {
     return this.http.put<Paciente>(`${this.apiUrl}/${id}`, paciente);
   }
 
-  deletePaciente(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deletePaciente(pacienteId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${pacienteId}`);
   }
 }

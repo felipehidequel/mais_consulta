@@ -31,7 +31,6 @@ export class CardsInfosComponent implements OnInit, OnChanges {
   calcularEstatisticas() {
     const dataAtual = new Date(); // Data atual para comparar os atendimentos
   
-    console.log('Atendimentos recebidos:', this.atendimentos); // Adicione esta linha
   
     // Filtro dos atendimentos do dia atual
     this.quantidadeAtendimentos = this.atendimentos.filter(atendimento => {
@@ -43,7 +42,6 @@ export class CardsInfosComponent implements OnInit, OnChanges {
       );
     }).length;
   
-    console.log('Quantidade de atendimentos do dia:', this.quantidadeAtendimentos); // Adicione esta linha
   
     // Atualiza os horários disponíveis (padrão 8 menos os atendimentos do dia)
     this.quantidadeDisponiveis = 8 - this.quantidadeAtendimentos; // Corrigido aqui
@@ -59,7 +57,6 @@ export class CardsInfosComponent implements OnInit, OnChanges {
       );
     }).length;
   
-    console.log('Pacientes atendidos:', this.pacientesAtendidos); // Adicione esta linha
   
     // Contagem de pacientes ausentes (presença = false)
     this.pacientesAusentes = this.atendimentos.filter(atendimento => {
@@ -72,6 +69,5 @@ export class CardsInfosComponent implements OnInit, OnChanges {
       );
     }).length;
   
-    console.log('Pacientes ausentes:', this.pacientesAusentes); // Adicione esta linha
   }
 }

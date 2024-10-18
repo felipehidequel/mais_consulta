@@ -36,6 +36,28 @@ def get_consultas():
 def get_consulta(consulta_id):
     try:
         consulta = Consulta.get_by_id(consulta_id)
+        
+        consulta = model_to_dict(consulta)
+        consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+        consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
+        
+        return jsonify(consulta)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['GET'])
+def get_consultas_paciente(paciente_id):
+    try:
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
+        
+        consultas_dict = [model_to_dict(consulta) for consulta in consultas]
+        for consulta in consultas_dict:
+            consulta['disponibilidade']['horario_inicio'] = consulta['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+            consulta['disponibilidade']['horario_fim'] = consulta['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
+
+        return jsonify(consultas_dict)
+    except Exception as e:
+        return jsonify({'error': str(e)})
         return jsonify(model_to_dict(consulta))
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -60,7 +82,6 @@ def create_consulta():
         )
 
         disponibilidade_obj.is_disponivel = False
-        disponibilidade_obj.paciente = paciente_obj.id
         disponibilidade_obj.save()
 
         return jsonify({'message': 'Consulta criada com sucesso', 'consulta_id': nova_consulta.id}), 201
@@ -85,16 +106,38 @@ def update_consulta(consulta_id):
         return jsonify({"message": "Consulta atualizada com sucesso", "consulta": consulta_dict})
     except Exception as e:
         return jsonify({'error': str(e)})
-
-
-@consulta.route('/consulta/all', methods=['DELETE'])
-def delete_all_consultas():
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['PUT'])
+def update_consulta_by_paciente(paciente_id):
     try:
-        # Deleta todas as consultas
-        deleted_count = Consulta.delete().execute()
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
         
-        Disponibilidade.update(is_disponivel=True, paciente=None).execute()  # Restaura todas as disponibilidades
-
-        return jsonify({'message': f'{deleted_count} consultas deletadas com sucesso.'}), 200
+        for consulta in consultas:
+            consulta.status = request.json.get('status', consulta.status)
+            consulta.presenca = request.json.get('presenca', consulta.presenca)
+            consulta.save()
+        
+        return jsonify({"message": "Consultas atualizadas com sucesso"})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)})
+    
+@consulta.route('/consulta/paciente/<int:paciente_id>', methods=['DELETE'])
+def delete_consultas_by_paciente(paciente_id):
+    try:
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
+
+        for consulta in consultas:
+            # Acesse a instância de disponibilidade e altere o valor
+            consulta.disponibilidade.is_disponivel = True
+            
+            # Salve as alterações na disponibilidade
+            consulta.disponibilidade.save()  # Persistir a mudança no banco de dados
+            
+            # Delete a consulta
+            consulta.delete_instance()
+
+        return jsonify({"message": "Consultas deletadas com sucesso"})
+    except Exception as e:
+        print(f"Erro ao deletar consultas para paciente {paciente_id}: {str(e)}")  # Log detalhado
+        return jsonify({'error': str(e)})
+

@@ -4,7 +4,7 @@
     {{ atendimento?.disponibilidade?.horario_fim ?? 'Fim não disponível' }}
   </p>
   <div class="paciente">
-    <p class="w50">{{ atendimento?.disponibilidade?.paciente?.username ?? 'Paciente não disponível' }}</p>
+    <p class="w50">{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>
     <p class="status w25 " [ngClass]="{
       'status-agendado': atendimento?.status === 'AGENDADO',
       'status-confirmado': atendimento?.status === 'CONFIRMADO',

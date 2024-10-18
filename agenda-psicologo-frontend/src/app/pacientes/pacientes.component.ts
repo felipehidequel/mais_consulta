@@ -4,8 +4,9 @@ import { PacienteFormComponent } from '../paciente-form/paciente-form.component'
 import { PacienteService } from '../services/paciente.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { ConsultaService } from '../services/consulta.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-pacientes',
@@ -21,7 +22,8 @@ export class PacientesComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private pacienteService: PacienteService,
-    private consultaService: ConsultaService // Injetar o ConsultaService
+    private consultaService: ConsultaService,
+    private snackBar: MatSnackBar // Injetar o MatSnackBar para mensagens
   ) { }
 
   ngOnInit(): void {
@@ -57,31 +59,30 @@ export class PacientesComponent implements OnInit {
 
   deletePaciente(pacienteId: number) {
     if (confirm("Você tem certeza que deseja deletar este paciente?")) {
-      this.pacienteService.deletePaciente(pacienteId).subscribe(
+      // Deletar consultas do paciente primeiro
+      this.consultaService.deleteConsultasByPaciente(pacienteId).subscribe(
         () => {
-          console.log('Paciente deletado com sucesso.');
-          this.loadPacientes(); // Recarregar a lista de pacientes
+          // Se as consultas foram deletadas com sucesso, então deletar o paciente
+          this.pacienteService.deletePaciente(pacienteId).subscribe(
+            () => {
+              this.loadPacientes(); // Recarregar a lista de pacientes
+              this.snackBar.open('Paciente e suas consultas deletadas com sucesso!', 'Fechar', {
+                duration: 3000,
+              });
+            },
+            (error) => {
+              console.error('Erro ao deletar paciente:', error);
+              this.snackBar.open('Erro ao deletar paciente.', 'Fechar', {
+                duration: 3000,
+              });
+            }
+          );
         },
         (error) => {
-          console.error('Erro ao deletar paciente:', error);
-        }
-      );
-    }}
-  
-
-  deleteAllConsultas(pacienteId: number) { // Adicione o ID do paciente como parâmetro
-    if (confirm("Você tem certeza que deseja deletar todas as consultas?")) {
-      this.consultaService.deleteAllConsultas().subscribe(
-        () => {
-          console.log('Todas as consultas deletadas com sucesso.');
-
-          // Aqui você chama deletePaciente passando o pacienteId
-          this.deletePaciente(pacienteId); // Chame a função deletePaciente com o ID do paciente
-
-          this.loadPacientes(); // Recarregar a lista de pacientes (ou consultas)
-        },
-        (error) => {
-          console.error('Erro ao deletar todas as consultas:', error);
+          console.error('Erro ao deletar consultas:', error);
+          this.snackBar.open('Erro ao deletar consultas do paciente.', 'Fechar', {
+            duration: 3000,
+          });
         }
       );
     }

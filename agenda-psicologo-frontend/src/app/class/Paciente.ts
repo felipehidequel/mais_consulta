@@ -6,7 +6,6 @@ export class Paciente {
   cpf: string;
   dataDeNascimento: Date;
   password: string;
-  disponibilidade?: { id: number }; // Inclua a propriedade 'disponibilidade'
 
   constructor(
     id: number,
@@ -25,6 +24,5 @@ export class Paciente {
     this.cpf = cpf;
     this.dataDeNascimento = dataDeNascimento;
     this.password = password;
-    this.disponibilidade = disponibilidade;
   }
 }

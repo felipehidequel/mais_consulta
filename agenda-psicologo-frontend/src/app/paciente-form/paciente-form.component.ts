@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { Consulta } from '../class/Consulta';
 import { Disponibilidade } from '../class/Disponibilidade';
+import { Paciente } from '../class/Paciente';
 
 @Component({
   selector: 'app-paciente-form',
@@ -63,10 +64,6 @@ export class PacienteFormComponent implements OnInit {
     if (id) {
       this.pacienteService.getPaciente(id).subscribe((paciente) => {
         this.pacienteForm.patchValue(paciente);
-        // Se houver uma disponibilidade associada, você pode setar no formulário
-        if (paciente.disponibilidade) {
-          this.pacienteForm.controls['disponibilidade'].setValue(paciente.disponibilidade.id);
-        }
       });
     }
   }
@@ -84,7 +81,7 @@ export class PacienteFormComponent implements OnInit {
 
   private createPaciente(disponibilidadeId: number): void {
     const pacienteData = this.pacienteForm.value;
-  
+
     // Buscar a disponibilidade completa pelo ID antes de criar a consulta
     this.disponibilidadeService.getDisponibilidade(disponibilidadeId).subscribe(
       (disponibilidade) => {
@@ -93,13 +90,13 @@ export class PacienteFormComponent implements OnInit {
           (response) => {
             const pacienteId = response.id!;
             const pacienteUsername = pacienteData.username;
-  
-            // Criar as consultas após o paciente ser criado e disponibilidade carregada
-            this.createConsulta(pacienteId, pacienteUsername, disponibilidadeId, disponibilidade);
-  
+
+            // Criar as consultas após o paciente ser criado
+            this.createConsulta(pacienteId, pacienteUsername, disponibilidade);
+
             // Atualizar a disponibilidade para não disponível
             this.updateDisponibilidade(disponibilidadeId, false);
-  
+
             this.snackBar.open('Paciente cadastrado com sucesso!', 'Fechar', { duration: 3000 });
             this.dialogRef.close(true);
           },
@@ -113,7 +110,7 @@ export class PacienteFormComponent implements OnInit {
       }
     );
   }
-  
+
   private updatePaciente(disponibilidadeId: number): void {
     const pacienteData = this.pacienteForm.value;
     const pacienteId = this.data.paciente.id; // ID do paciente que está sendo editado
@@ -121,8 +118,12 @@ export class PacienteFormComponent implements OnInit {
     // Primeiro, atualiza o paciente
     this.pacienteService.updatePaciente(pacienteId, pacienteData).subscribe(
       () => {
-        this.updateConsulta(pacienteId, disponibilidadeId);
-        this.updateDisponibilidade(disponibilidadeId, false); // Marcar a nova disponibilidade como não disponível
+        // Atualiza a consulta do paciente com a nova disponibilidade
+        this.updateConsultas(pacienteId, disponibilidadeId);
+
+        // Atualizar a disponibilidade para não disponível
+        this.updateDisponibilidade(disponibilidadeId, false);
+
         this.snackBar.open('Paciente atualizado com sucesso!', 'Fechar', { duration: 3000 });
         this.dialogRef.close(true);
       },
@@ -132,11 +133,11 @@ export class PacienteFormComponent implements OnInit {
     );
   }
 
-  private createConsulta(pacienteId: number, pacienteUsername: string, disponibilidadeId: number, disponibilidade: any): void {
-    const pacienteData = this.pacienteForm.value;
+  private createConsulta(pacienteId: number, pacienteUsername: string, disponibilidade: any): void {
+    const pacienteData = this.pacienteForm.value;  // This contains the full patient data
+
     const consultas = [];
-  
-    // Define a data inicial para a consulta com base no dia da semana e horário de início
+
     const diasSemana: { [key: string]: number } = {
       'domingo': 0,
       'segunda': 1,
@@ -146,39 +147,40 @@ export class PacienteFormComponent implements OnInit {
       'sexta': 5,
       'sábado': 6
     };
-  
+
     const diaSemana = diasSemana[disponibilidade.dia_semana.toLowerCase()];
     const hoje = new Date();
     let proximaData = new Date();
     proximaData.setDate(hoje.getDate() + ((6 + diaSemana - hoje.getDay()) % 7));
-    proximaData.setHours(parseInt(disponibilidade.horario_inicio.split(':')[0]), parseInt(disponibilidade.horario_inicio.split(':')[1]));
-  
-    // Criar 4 consultas, uma a cada semana no mesmo dia e horário
+    proximaData.setHours(
+      parseInt(disponibilidade.horario_inicio.split(':')[0]),
+      parseInt(disponibilidade.horario_inicio.split(':')[1])
+    );
+
     for (let i = 0; i < 4; i++) {
       const dataConsulta = new Date(proximaData);
       dataConsulta.setDate(proximaData.getDate() + (7 * i));
-  
+
       const consultaData = {
         data: dataConsulta.toISOString(),
         disponibilidade: {
-          id: disponibilidadeId,
+          id: disponibilidade.id,
           is_disponivel: false
         },
         paciente: {
-          id: pacienteData.id,
+          id: pacienteId,
           username: pacienteData.username,
-          telefone: pacienteData.telefone,
+          telefone: pacienteData.telefone,       // Add remaining properties
           email: pacienteData.email,
           cpf: pacienteData.cpf,
           dataDeNascimento: pacienteData.dataDeNascimento,
           password: pacienteData.password
         }
       };
-  
+
       consultas.push(consultaData);
     }
-  
-    // Iterar e criar cada consulta
+
     consultas.forEach(consulta => {
       this.consultaService.createConsulta(consulta).subscribe(
         () => {
@@ -190,14 +192,11 @@ export class PacienteFormComponent implements OnInit {
       );
     });
   }
-  
 
-
-  private updateConsulta(pacienteId: number, disponibilidadeId: number): void {
+  private updateConsultas(pacienteId: number, disponibilidadeId: number): void {
     this.consultaService.getConsultaByPacienteId(pacienteId).subscribe((consultas: Consulta[]) => {
-      if (consultas.length > 0) {
-        const consulta = consultas[0]; // Pegue a primeira consulta se houver mais de uma
-        consulta.disponibilidade = disponibilidadeId; // Atualiza a disponibilidade na consulta
+      consultas.forEach(consulta => {
+        // consulta.disponibilidade = disponibilidadeId;
         this.consultaService.updateConsulta(consulta.id!, consulta).subscribe(
           () => {
             this.snackBar.open('Consulta atualizada com sucesso!', 'Fechar', { duration: 3000 });
@@ -206,7 +205,7 @@ export class PacienteFormComponent implements OnInit {
             this.snackBar.open('Erro ao atualizar consulta.', 'Fechar', { duration: 3000 });
           }
         );
-      }
+      });
     });
   }
 
