@@ -50,12 +50,10 @@ def get_disponibilidade_by_day():
 @disponibilidade.route('/disponibilidade', methods=['POST'])
 def create_disponibilidade():
     try:
-        paciente = request.json.get('paciente')
-        data = request.json.get('data')
         horario_inicio = request.json.get('horario_inicio')
         horario_fim = request.json.get('horario_fim')
         dia_semana = request.json.get("dia_semana")
-        Disponibilidade.create(paciente=paciente, data=data, horario_inicio=horario_inicio, horario_fim=horario_fim, dia_semana=dia_semana)
+        Disponibilidade.create(horario_inicio=horario_inicio, horario_fim=horario_fim, dia_semana=dia_semana, is_disponivel=True)
         
         return jsonify({'message': 'Create disponibilidade'})
     except Exception as e:
@@ -65,10 +63,10 @@ def create_disponibilidade():
 def update_disponibilidade(disponibilidade_id):
     try:
         disponibilidade = Disponibilidade.get_by_id(disponibilidade_id)
-        disponibilidade.data = request.json.get('data')
         disponibilidade.horario_inicio = request.json.get('horario_inicio')
         disponibilidade.horario_fim = request.json.get('horario_fim')
-        disponibilidade.paciente = request.json.get('paciente')
+        disponibilidade.dia_semana = request.json.get('dia_semana')
+        disponibilidade.is_disponivel = request.json.get('is_disponivel')
         
         disponibilidade.save()
         
