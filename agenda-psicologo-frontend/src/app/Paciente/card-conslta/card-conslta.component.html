@@ -1,0 +1,36 @@
+<section class="paciente-infos">
+  <p class="w20">
+    {{ atendimento?.disponibilidade?.horario_inicio ?? 'Início não disponível' }}<br>
+    <span class="testeHorario">
+      {{ atendimento?.disponibilidade?.horario_fim ?? 'Fim não disponível' }}
+    </span>
+  </p>
+  <div class="paciente">
+    <p class="w50">{{ atendimento?.data }}</p>
+    <p class="status w25" [ngClass]="{
+      'status-agendado': atendimento?.status === 'AGENDADO',
+      'status-confirmado': atendimento?.status === 'CONFIRMADO',
+      'status-cancelado': atendimento?.status === 'CANCELADO',
+      'status-ausente': atendimento?.presenca === false && atendimento?.status !== 'CANCELADO',
+    }">
+    {{
+      atendimento?.status === 'CANCELADO' && atendimento?.presenca === false
+        ? 'Cancelado'
+        : atendimento?.presenca === true
+        ? 'Presente'
+        : atendimento?.presenca === false
+        ? 'Ausente'
+        : 'Não definido'
+    }}
+</p>
+
+    <div class="input-paciente w25">
+      <img *ngIf="isFirstAgendado && atendimento?.status === 'AGENDADO'"
+        src="../../../assets/akar-icons_check-box-fill.svg" class="custom-icon"
+        (click)="atendimento && atualizarConsulta(atendimento.id, 'CONFIRMADO', undefined)" alt="Confirmar">
+      <img *ngIf="isFirstAgendado && atendimento?.status === 'AGENDADO'"
+        src="../../../assets/akar-icons_check-box-fil-xl.svg" class="custom-icon"
+        (click)="atendimento && atualizarConsulta(atendimento.id, 'CANCELADO', false)" alt="Cancelar">
+    </div>
+  </div>
+</section>

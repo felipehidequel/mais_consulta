@@ -1,0 +1,21 @@
+<section class="login">
+  <img src="../../assets/Pessoa usando computador.jpg" alt="Pessoa usando computador">
+  <div class="forms">
+    <div class="text-forms">
+      <h1>Olá, paciente</h1>
+      <h2>Preencha os campos abaixo para entrar</h2>
+    </div>
+    <form (ngSubmit)="onLogin()">
+      <div>
+        <label for="username">Usuário</label>
+        <input id="username" [(ngModel)]="username" name="username" required />
+      </div>
+      <div>
+        <label for="password">Senha</label>
+        <input id="password" [(ngModel)]="password" name="password" type="password" required />
+      </div>
+      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+</section>

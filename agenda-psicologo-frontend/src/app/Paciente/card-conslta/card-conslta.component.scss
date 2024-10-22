@@ -1,0 +1,71 @@
+.paciente-infos {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.paciente {
+  background-color: #F4FAFD;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+p {
+  font-size: 16px;
+  font-weight: 300;
+  color: #1E1E1E;
+}
+
+.status {
+    text-align: center;
+    padding: 8px;
+    border-radius: 100px;
+    color: #1E1E1E;
+    &-agendado {
+      background-color: rgba(255, 255, 181, 1);
+    }
+
+    &-confirmado {
+      background-color: rgba(0, 178, 62, 1);
+    }
+
+    &-cancelado, &-ausente {
+      background-color: rgba(253, 85, 85, 1);
+    }
+  }
+
+.w20 {
+  width: 20%;
+}
+
+.w50 {
+  width: 50%;
+}
+
+.w25 {
+  width: 25%;
+  text-align: center;
+}
+
+img {
+  height: 40px;
+  cursor: pointer;
+}
+
+.input-paciente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &-disable{
+    filter: saturate(0); /* Remove a saturação */
+    cursor:auto;
+  }
+}
+
+.testeHorario{
+  color: #ccc;
+}

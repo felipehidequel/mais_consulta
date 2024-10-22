@@ -1,0 +1,27 @@
+<section class="confirmacoes">
+  <h2>Bem-vindo, {{ pacienteNome }}!</h2>
+  <div class="sessoes">
+    <div class="teste">
+
+      <div class="sessao">
+        <p>Proximimos Atendimentos</p>
+        <ng-container *ngFor="let atendimento of atendimentos">
+          <app-card-conslta *ngIf="atendimento.status === 'AGENDADO'" [atendimento]="atendimento"
+            [isFirstAgendado]="atendimento === firstAgendado" (statusAtualizado)="handleStatusAtualizado($event)">
+          </app-card-conslta>
+        </ng-container>
+      </div>
+    </div>
+    <div class="teste">
+
+      <div class="sessao">
+        <p>Atendimentos Passados</p>
+        <ng-container *ngFor="let atendimento of atendimentos">
+          <app-card-conslta *ngIf="atendimento.status !== 'AGENDADO'" [atendimento]="atendimento"
+            [isFirstAgendado]="atendimento === firstAgendado" (statusAtualizado)="handleStatusAtualizado($event)">
+          </app-card-conslta>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</section>

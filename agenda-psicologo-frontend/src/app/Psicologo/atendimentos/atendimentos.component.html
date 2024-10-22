@@ -1,0 +1,18 @@
+<section class="atendimentos">
+  <div class="infos-atendimentos">
+    <h2>Atendimentos</h2>
+    <div class="infos">
+      <p class="w20">Horário</p>
+      <div class="infos-pacientes">
+        <p class="w50">Paciente</p>
+        <p class="w25">Status</p>
+        <p class="w25">Presença</p>
+      </div>
+    </div>
+  </div>
+  <div class="prox-atendimentos">
+    <ng-container *ngFor="let atendimento of atendimentos">
+      <app-atendimento *ngIf="atendimento.presenca === null" [atendimento]="atendimento"></app-atendimento>
+    </ng-container>
+  </div>
+</section>

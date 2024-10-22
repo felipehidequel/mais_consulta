@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router'; // Importa o módulo de roteamento
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './Psicologo/home/home.component';
 @Component({
   selector: 'app-root',
   standalone: true,  // Define como componente standalone

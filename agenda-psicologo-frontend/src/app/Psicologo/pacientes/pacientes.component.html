@@ -1,0 +1,30 @@
+<app-sidebar></app-sidebar>
+
+<section class="pacientes">
+  <h2>Pacientes</h2>
+  <div class="cadastro">
+    <button class="btn-cadastro" (click)="openForm()">Cadastrar Paciente</button>
+  </div>
+
+  <div class="pacientes">
+    <div class="infos">
+      <div class="infos-pacientes">
+        <p class="w40">Nome</p>
+        <p class="w20">Sessões Restantes</p>
+        <p class="w20">Contato</p>
+        <p class="w20">Ações</p>
+      </div>
+    </div>
+    <div *ngIf="loading">Carregando...</div>
+    <div *ngFor="let paciente of pacientes" class="paciente">
+      <p class="w40">{{ paciente.username }}</p>
+      <p class="w20">{{ paciente.quantidadeConsulta }}</p>
+      <p class="w20">{{ paciente.telefone }}</p>
+      <div class="w20 icons">
+        <i class="bi bi-pencil-fill edit" (click)="openForm(paciente.id)"></i> 
+        <i class="bi bi-arrow-clockwise refresh" (click)="createFutureConsultas(paciente.id)"></i> 
+        <i class="bi bi-trash-fill delete" (click)="deletePaciente(paciente.id)"></i> 
+      </div>      
+    </div>
+  </div>
+</section>

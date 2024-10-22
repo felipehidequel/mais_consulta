@@ -1,0 +1,60 @@
+h2 {
+  font-weight: 400;
+  font-size: 24px;
+  color: #A5A5A5;
+}
+
+p {
+  color: #1E1E1E;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.atendimentos {
+  display: flex;
+  flex-direction: column;
+}
+
+.infos-atendimentos {
+  padding: 24px;
+  display: flex;
+  gap: 40px;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+
+  background-color: #fff;
+  .infos{
+    display: flex;
+    gap: 16px;
+  }
+}
+
+.w20 {
+  width: 20%;
+}
+
+.w25 {
+  width: 25%;
+  text-align: center;
+}
+
+.w50 {
+  width: 50%;
+}
+
+.infos-pacientes {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  padding-right: 24px;
+}
+
+.prox-atendimentos {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  overflow: auto;
+}

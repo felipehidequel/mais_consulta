@@ -1,0 +1,20 @@
+<section class="paciente-infos">
+  <div class="paciente">
+    <p>{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>
+    <p [ngClass]="{
+        'status-presente': atendimento.presenca === true,
+        'status-ausente': atendimento.presenca === false && atendimento.status !== 'CANCELADO',
+        'status-cancelado': atendimento.presenca === false && atendimento.status === 'CANCELADO'
+      }" class="w25 status">
+      {{
+        atendimento.status === 'CANCELADO' && atendimento.presenca === false
+          ? 'Cancelado'
+          : atendimento.presenca === true
+          ? 'Presente'
+          : atendimento.presenca === false
+          ? 'Ausente'
+          : 'Não definido'
+      }}
+    </p>
+  </div>
+</section>

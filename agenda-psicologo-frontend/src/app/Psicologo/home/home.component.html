@@ -1,0 +1,24 @@
+<section>
+  <app-sidebar></app-sidebar>
+  <div class="home">
+    <div class="header-infos">
+      <div class="infos">
+        <h2>Bem-vindo, {{ psicologo.username }}</h2> 
+        <div class="infos-psi">
+          <div>
+            <h2>{{ psicologo.username }}</h2> 
+            <p>CRP {{ psicologo.crp }}</p> 
+          </div>
+          <!-- <img src="../../assets/xulipe.png" alt=""> -->
+        </div>
+      </div>
+      <div class="cards">
+        <app-cards-infos [atendimentos]="atendimentos"></app-cards-infos>
+      </div>
+      <div class="atendimentos">
+        <app-atendimentos></app-atendimentos>
+        <app-historico-atendimentos></app-historico-atendimentos>
+      </div>
+    </div>
+  </div>
+</section>
