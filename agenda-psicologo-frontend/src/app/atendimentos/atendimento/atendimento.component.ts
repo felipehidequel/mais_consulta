@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Disponibilidade } from '../../class/Disponibilidade';
+import { Consulta } from '../../class/Consulta';
 
 interface Atendimento {
   inicio: string;

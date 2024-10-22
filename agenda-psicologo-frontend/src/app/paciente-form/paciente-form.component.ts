@@ -9,19 +9,25 @@ import { CommonModule } from '@angular/common';
 import { Consulta } from '../class/Consulta';
 import { Disponibilidade } from '../class/Disponibilidade';
 import { Paciente } from '../class/Paciente';
+import { SemanaPipe } from '../pipes/semana/semana.pipe';
 
 @Component({
   selector: 'app-paciente-form',
   templateUrl: './paciente-form.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, SemanaPipe],
   styleUrls: ['./paciente-form.component.scss'],
 })
+
 export class PacienteFormComponent implements OnInit {
   pacienteForm!: FormGroup;
-  disponibilidades: any[] = [];
+  disponibilidades: Disponibilidade[] = []; // Use o tipo correto
+  disponibilidadesPaciente: Disponibilidade[] = []; // Nova propriedade
   isEditMode = false;
-
+  horarioInicio!: string;
+  horarioFim!: string;
+  diaAtual!: string;
+  idAtual!: number;
   constructor(
     private fb: FormBuilder,
     private pacienteService: PacienteService,
@@ -36,9 +42,13 @@ export class PacienteFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadDisponibilidades();
     if (this.isEditMode) {
       this.loadPacienteData(this.data.paciente.id); // Passa a ID do paciente
+      this.loadDisponibilidades(); // Carrega todas as disponibilidades
+      this.loadDisponibilidadesPorPacienteId(this.data.paciente.id); // Carrega as disponibilidades do paciente
+    }
+    else {
+      this.loadDisponibilidades(); // Carrega todas as disponibilidades
     }
   }
 
@@ -50,13 +60,65 @@ export class PacienteFormComponent implements OnInit {
       cpf: ['', Validators.required],
       dataDeNascimento: ['', Validators.required],
       password: ['', Validators.required],
-      disponibilidade: ['', Validators.required]
+      disponibilidade: ['', this.isEditMode ? [] : [Validators.required]], // Condicional
     });
   }
 
   private loadDisponibilidades(): void {
-    this.disponibilidadeService.getDisponibilidades().subscribe((data) => {
-      this.disponibilidades = data;
+    this.disponibilidadeService.getDisponibilidades().subscribe((data: Disponibilidade[]) => {
+      this.disponibilidades = data; // Armazena todas as disponibilidades
+    }, (error) => {
+      this.snackBar.open('Erro ao carregar disponibilidades.', 'Fechar', { duration: 3000 });
+    });
+  }
+
+  private loadDisponibilidadesPorPacienteId(pacienteId: number): void {
+    this.consultaService.getDisponibilidadesPorPacienteId(pacienteId).subscribe((data: Disponibilidade[]) => {
+      this.disponibilidadesPaciente = data;
+
+      // Exibindo o JSON recebido no alert
+      //alert(JSON.stringify(this.disponibilidadesPaciente, null, 2)); // Formata o JSON com indentação
+
+      if (this.disponibilidadesPaciente && this.disponibilidadesPaciente.length > 0) {
+        // Acessando a primeira disponibilidade
+        const primeiraDisponibilidade = (this.disponibilidadesPaciente[0] as any).disponibilidade;
+
+        if (primeiraDisponibilidade) {
+          const primeiroDisponibilidadeId = primeiraDisponibilidade.id;
+          //(`ID da primeira disponibilidade: ${primeiroDisponibilidadeId}`);
+
+          if (primeiroDisponibilidadeId !== undefined) {
+            this.disponibilidadeService.getDisponibilidade(primeiroDisponibilidadeId).subscribe((disponibilidadeDetalhes: Disponibilidade) => {
+              this.horarioInicio = disponibilidadeDetalhes.horario_inicio; // Armazenando em variável
+              this.horarioFim = disponibilidadeDetalhes.horario_fim;       // Armazenando em variável
+              this.diaAtual = disponibilidadeDetalhes.dia_semana;          // Armazenando em variável
+              this.idAtual = primeiroDisponibilidadeId;
+              //alert(this.idAtual)
+
+              this.pacienteForm.patchValue({
+                disponibilidade: primeiroDisponibilidadeId,
+                horario_inicio: this.horarioInicio,
+                horario_fim: this.horarioFim
+              });
+
+              console.log('Detalhes da primeira disponibilidade:', disponibilidadeDetalhes);
+              //alert(`ID da primeira disponibilidade: ${primeiroDisponibilidadeId}, Horário: ${this.horarioInicio} - ${this.horarioFim}`);
+            }, (error) => {
+              console.error('Erro ao carregar detalhes da disponibilidade:', error);
+              this.snackBar.open('Erro ao carregar detalhes da disponibilidade.', 'Fechar', { duration: 3000 });
+            });
+          } else {
+            alert('ID da primeira disponibilidade é indefinido.');
+          }
+        } else {
+          alert('Nenhuma disponibilidade encontrada no primeiro item.');
+        }
+      } else {
+        alert('Nenhuma disponibilidade encontrada.');
+      }
+    }, (error) => {
+      console.error('Erro ao carregar disponibilidades:', error);
+      this.snackBar.open('Erro ao carregar disponibilidades do paciente.', 'Fechar', { duration: 3000 });
     });
   }
 
@@ -78,6 +140,7 @@ export class PacienteFormComponent implements OnInit {
       }
     }
   }
+
 
   private createPaciente(disponibilidadeId: number): void {
     const pacienteData = this.pacienteForm.value;
@@ -111,27 +174,6 @@ export class PacienteFormComponent implements OnInit {
     );
   }
 
-  private updatePaciente(disponibilidadeId: number): void {
-    const pacienteData = this.pacienteForm.value;
-    const pacienteId = this.data.paciente.id; // ID do paciente que está sendo editado
-
-    // Primeiro, atualiza o paciente
-    this.pacienteService.updatePaciente(pacienteId, pacienteData).subscribe(
-      () => {
-        // Atualiza a consulta do paciente com a nova disponibilidade
-        this.updateConsultas(pacienteId, disponibilidadeId);
-
-        // Atualizar a disponibilidade para não disponível
-        this.updateDisponibilidade(disponibilidadeId, false);
-
-        this.snackBar.open('Paciente atualizado com sucesso!', 'Fechar', { duration: 3000 });
-        this.dialogRef.close(true);
-      },
-      (error) => {
-        this.snackBar.open('Erro ao atualizar paciente.', 'Fechar', { duration: 3000 });
-      }
-    );
-  }
 
   private createConsulta(pacienteId: number, pacienteUsername: string, disponibilidade: any): void {
     const pacienteData = this.pacienteForm.value;  // This contains the full patient data
@@ -174,7 +216,7 @@ export class PacienteFormComponent implements OnInit {
           email: pacienteData.email,
           cpf: pacienteData.cpf,
           dataDeNascimento: pacienteData.dataDeNascimento,
-          quantidadeConsulta:pacienteData.quantidadeConsulta,
+          quantidadeConsulta: pacienteData.quantidadeConsulta,
           password: pacienteData.password
         }
       };
@@ -194,10 +236,31 @@ export class PacienteFormComponent implements OnInit {
     });
   }
 
+  private updatePaciente(disponibilidadeId: number): void {
+    const pacienteData = this.pacienteForm.value;
+    const pacienteId = this.data.paciente.id; // ID do paciente que está sendo editado
+
+    // Atualiza o paciente
+    this.pacienteService.updatePaciente(pacienteId, pacienteData).subscribe(
+      () => {
+        this.updateConsultas(pacienteId, disponibilidadeId); // Atualiza consultas após paciente
+        this.snackBar.open('Paciente atualizado com sucesso!', 'Fechar', { duration: 3000 });
+        this.dialogRef.close(true);
+      },
+      (error) => {
+        this.snackBar.open('Erro ao atualizar paciente.', 'Fechar', { duration: 3000 });
+      }
+    );
+  }
+
   private updateConsultas(pacienteId: number, disponibilidadeId: number): void {
     this.consultaService.getConsultaByPacienteId(pacienteId).subscribe((consultas: Consulta[]) => {
       consultas.forEach(consulta => {
-        // consulta.disponibilidade = disponibilidadeId;
+
+        // Atualiza a consulta para associar a nova disponibilidade
+        consulta.disponibilidade.id = disponibilidadeId;
+
+        // Atualiza a consulta no serviço
         this.consultaService.updateConsulta(consulta.id!, consulta).subscribe(
           () => {
             this.snackBar.open('Consulta atualizada com sucesso!', 'Fechar', { duration: 3000 });
@@ -209,6 +272,8 @@ export class PacienteFormComponent implements OnInit {
       });
     });
   }
+
+
 
   private updateDisponibilidade(disponibilidadeId: number, isAvailable: boolean): void {
     this.disponibilidadeService.getDisponibilidade(disponibilidadeId).subscribe((disponibilidade) => {

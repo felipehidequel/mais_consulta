@@ -22,6 +22,8 @@ p {
   flex-direction: column;
   position: sticky;
   top: 0;
+  z-index: 999;
+
   background-color: #fff;
   .infos{
     display: flex;

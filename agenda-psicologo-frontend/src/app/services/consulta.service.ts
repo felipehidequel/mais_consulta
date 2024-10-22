@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Consulta } from '../class/Consulta';
 import { Paciente } from '../class/Paciente';
+import { Disponibilidade } from '../class/Disponibilidade';
 
 @Injectable({
   providedIn: 'root',
@@ -30,14 +31,16 @@ export class ConsultaService {
 
   deleteConsulta(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
+  } 
 
   getConsultaByPacienteId(pacienteId: number): Observable<Consulta[]> {
     return this.http.get<Consulta[]>(`${this.apiUrl}/paciente/${pacienteId}`);
   }
+
   deleteConsultasByPaciente(pacienteId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/paciente/${pacienteId}`);
   }
+
   liberarDisponibilidade(disponibilidadeId: number): Observable<void> {
     return this.http.put<void>(`http://127.0.0.1:5000/disponibilidade/${disponibilidadeId}`, { is_disponivel: true });
   }
@@ -45,5 +48,10 @@ export class ConsultaService {
   getUltimaConsultaByPacienteId(pacienteId: number): Observable<Consulta[]> {
     return this.http.get<Consulta[]>(`${this.apiUrl}/paciente/${pacienteId}?limit=1&sort=desc`);
   }  
+
+  getDisponibilidadesPorPacienteId(pacienteId: number): Observable<Disponibilidade[]> {
+    return this.http.get<Disponibilidade[]>(`${this.apiUrl}/paciente/${pacienteId}`);
+  }
+  
 
 }

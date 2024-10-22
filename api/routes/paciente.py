@@ -45,8 +45,6 @@ def update_paciente(paciente_id):
         telefone = request.json.get('telefone')
         email = request.json.get('email')
         cpf = request.json.get('cpf') 
-        quantidadeConsulta = request.json.get('quantidadeConsulta')
-
         dataDeNascimento = request.json.get('dataDeNascimento')
         
         paciente = Paciente.get_by_id(paciente_id)
@@ -56,7 +54,6 @@ def update_paciente(paciente_id):
         paciente.email = email
         paciente.cpf = cpf
         paciente.dataDeNascimento = dataDeNascimento
-        paciente.quantidadeConsulta = quantidadeConsulta
 
         paciente.save()
         
@@ -73,3 +70,21 @@ def delete_paciente(paciente_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+@paciente.route('/paciente/<int:paciente_id>', methods=['PUT'])
+def update_paciente_consultas(paciente_id):
+    try:
+
+        quantidadeConsulta = request.json.get('quantidadeConsulta')
+
+        paciente = Paciente.get_by_id(paciente_id)
+        if not paciente:
+            return jsonify({'error': 'Paciente not found'}), 404  # Retornar erro se o paciente não for encontrado
+            
+        paciente.quantidadeConsulta = quantidadeConsulta
+
+        paciente.save()
+        
+        return jsonify({'message': f'Update paciente with ID {paciente_id}'})
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Log do erro
+        return jsonify({'error': str(e)}), 500  # Retornar erro 500

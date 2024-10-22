@@ -1,7 +1,9 @@
 <section class="paciente-infos">
   <p class="w20">
     {{ atendimento?.disponibilidade?.horario_inicio ?? 'Início não disponível' }}<br>
-    {{ atendimento?.disponibilidade?.horario_fim ?? 'Fim não disponível' }}
+    <span class="testeHorario">
+      {{ atendimento?.disponibilidade?.horario_fim ?? 'Fim não disponível' }}
+    </span>
   </p>
   <div class="paciente">
     <p class="w50">{{ atendimento?.paciente?.username ?? 'Paciente não disponível' }}</p>

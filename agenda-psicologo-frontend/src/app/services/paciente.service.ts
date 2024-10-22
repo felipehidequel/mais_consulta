@@ -9,7 +9,7 @@ import { Paciente } from '../class/Paciente';
 export class PacienteService {
   private apiUrl = 'http://127.0.0.1:5000/paciente';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getPacientes(): Observable<Paciente[]> {
     return this.http.get<Paciente[]>(this.apiUrl);
@@ -25,10 +25,14 @@ export class PacienteService {
 
   updatePaciente(id: number, paciente: Paciente): Observable<Paciente> {
     return this.http.put<Paciente>(`${this.apiUrl}/${id}`, paciente);
-}
+  }
+
+  updatePacienteConsultas(id: number, paciente: Paciente): Observable<Paciente> {
+    return this.http.put<Paciente>(`${this.apiUrl}/${id}`, paciente);
+  }
 
   deletePaciente(pacienteId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${pacienteId}`);
   }
-  
+
 }

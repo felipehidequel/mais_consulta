@@ -31,7 +31,6 @@ def get_consultas():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-
 @consulta.route('/consulta/<int:consulta_id>', methods=['GET'])
 def get_consulta(consulta_id):
     try:
@@ -100,26 +99,51 @@ def create_consulta():
 @consulta.route('/consulta/<int:consulta_id>', methods=['PUT'])
 def update_consulta(consulta_id):
     try:
+        # Busca a consulta pelo ID
         consulta = Consulta.get_by_id(consulta_id)
+        
+        # Atualiza os campos da consulta com os dados recebidos
         consulta.status = request.json.get('status', consulta.status)
         consulta.data = request.json.get('data', consulta.data)
-        consulta.disponibilidade = request.json.get('disponibilidade', consulta.disponibilidade)
         consulta.presenca = request.json.get('presenca', consulta.presenca)
-                # Atualizar quantidade de consultas do paciente
+
+        # Atualiza a disponibilidade se um ID for fornecido
+        disponibilidade_id = request.json.get('disponibilidade', {}).get('id')
+        if disponibilidade_id is not None:
+            nova_disponibilidade = Disponibilidade.get_by_id(disponibilidade_id)
+            if nova_disponibilidade:
+                # Primeiro, se a consulta já tinha uma disponibilidade associada, ela deve ser marcada como disponível novamente
+                if consulta.disponibilidade:
+                    consulta.disponibilidade.is_disponivel = True  # Torna a anterior disponível
+                    consulta.disponibilidade.save()  # Salva a mudança na disponibilidade anterior
+
+                # Agora, associa a nova disponibilidade e a marca como não disponível
+                consulta.disponibilidade = nova_disponibilidade
+                consulta.disponibilidade.is_disponivel = False
+                consulta.disponibilidade.save()  # Salva a nova disponibilidade
+            else:
+                return jsonify({'error': 'Disponibilidade não encontrada.'}), 404
+
+        # Atualizar quantidade de consultas do paciente
         quantidade_consulta = request.json.get('quantidadeConsulta')
         if quantidade_consulta is not None:
             consulta.paciente.quantidadeConsulta = quantidade_consulta
             consulta.paciente.save()  # Salvar a atualização no paciente
+
+        # Salvar a consulta atualizada
         consulta.save()
 
+        # Preparar o dicionário de retorno, formatando os horários
         consulta_dict = model_to_dict(consulta)
-        consulta_dict['disponibilidade']['horario_inicio'] = consulta_dict['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
-        consulta_dict['disponibilidade']['horario_fim'] = consulta_dict['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
+        if consulta_dict['disponibilidade']:
+            consulta_dict['disponibilidade']['horario_inicio'] = consulta_dict['disponibilidade']['horario_inicio'].strftime('%H:%M:%S')
+            consulta_dict['disponibilidade']['horario_fim'] = consulta_dict['disponibilidade']['horario_fim'].strftime('%H:%M:%S')
 
         return jsonify({"message": "Consulta atualizada com sucesso", "consulta": consulta_dict})
-    except Exception as e:
-        return jsonify({'error': str(e)})
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @consulta.route('/consulta/paciente/<int:paciente_id>', methods=['PUT'])
 def update_consulta_by_paciente(paciente_id):
     try:
@@ -134,7 +158,7 @@ def update_consulta_by_paciente(paciente_id):
         return jsonify({"message": "Consultas atualizadas com sucesso"})
     except Exception as e:
         return jsonify({'error': str(e)})
-    
+
 @consulta.route('/consulta/paciente/<int:paciente_id>', methods=['DELETE'])
 def delete_consultas_by_paciente(paciente_id):
     try:
@@ -154,5 +178,35 @@ def delete_consultas_by_paciente(paciente_id):
     except Exception as e:
         print(f"Erro ao deletar consultas para paciente {paciente_id}: {str(e)}")  # Log detalhado
         return jsonify({'error': str(e)})
+    
+@consulta.route('/disponibilidade/paciente/<int:paciente_id>', methods=['GET'])
+def get_disponibilidade_by_paciente(paciente_id):
+    try:
+        # Buscar todas as consultas do paciente
+        consultas = Consulta.select().where(Consulta.paciente == paciente_id)
 
+        # Extrair as disponibilidades únicas das consultas
+        disponibilidades_ids = {consulta.disponibilidade.id for consulta in consultas}  # Usando um set para garantir que sejam únicos
+        
+        # Se não houver disponibilidades, retorne uma mensagem apropriada
+        if not disponibilidades_ids:
+            return jsonify({'message': 'Nenhuma disponibilidade encontrada para este paciente.'}), 404
 
+        # Buscar as disponibilidades com base nos IDs extraídos
+        disponibilidades = Disponibilidade.select().where(Disponibilidade.id.in_(disponibilidades_ids))
+
+        # Convertendo as disponibilidades para dicionário
+        disponibilidades_dict = [
+            {
+                'id': disponibilidade.id,
+                'dia_semana': disponibilidade.dia_semana,
+                'horario_inicio': disponibilidade.horario_inicio.strftime('%H:%M:%S'),
+                'horario_fim': disponibilidade.horario_fim.strftime('%H:%M:%S'),
+                'is_disponivel': disponibilidade.is_disponivel
+            }
+            for disponibilidade in disponibilidades
+        ]
+
+        return jsonify(disponibilidades_dict), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

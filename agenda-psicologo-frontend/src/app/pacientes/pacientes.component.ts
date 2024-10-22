@@ -94,7 +94,7 @@ export class PacientesComponent implements OnInit {
     this.pacienteService.getPacienteById(pacienteId).subscribe(
       (pacienteCompleto) => {
         pacienteCompleto.quantidadeConsulta = 0; // Zera a quantidade de consultas
-        this.pacienteService.updatePaciente(pacienteId, pacienteCompleto).subscribe(
+        this.pacienteService.updatePacienteConsultas(pacienteId, pacienteCompleto).subscribe(
           () => {
             this.consultaService.getUltimaConsultaByPacienteId(pacienteId).subscribe(
               (consultas) => {

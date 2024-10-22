@@ -51,11 +51,16 @@
   </div>
 
   <div>
+    <div *ngIf="isEditMode">
+      <p>
+        Disponibilidade atual: {{ horarioInicio }} - {{ horarioFim }} ({{ diaAtual | semana }})
+      </p>
+    </div>
     <label for="disponibilidade">Disponibilidade</label>
     <select id="disponibilidade" formControlName="disponibilidade">
       <ng-container *ngFor="let disponibilidade of disponibilidades">
         <option *ngIf="disponibilidade.is_disponivel" [value]="disponibilidade.id">
-          {{ disponibilidade.horario_inicio }} - {{ disponibilidade.horario_fim }} ({{ disponibilidade.dia_semana }})
+          {{ disponibilidade.horario_inicio }} - {{ disponibilidade.horario_fim }} ({{ disponibilidade.dia_semana | semana }})
         </option>
       </ng-container>
     </select>
