@@ -16,7 +16,6 @@ export class Paciente {
     dataDeNascimento: Date,
     password: string,
     quantidadeConsulta: number,
-    disponibilidade?: { id: number },
   ) {
     this.id = id;
     this.username = username;

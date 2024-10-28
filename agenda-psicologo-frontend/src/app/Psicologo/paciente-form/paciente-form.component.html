@@ -36,7 +36,7 @@
 
   <div>
     <label for="dataDeNascimento">Data de Nascimento</label>
-    <input id="dataDeNascimento" formControlName="dataDeNascimento" type="text" />
+    <input id="dataDeNascimento" formControlName="dataDeNascimento" type="text"/>
     <div *ngIf="pacienteForm.get('dataDeNascimento')?.invalid && pacienteForm.get('dataDeNascimento')?.touched">
       <small *ngIf="pacienteForm.get('dataDeNascimento')?.errors?.['required']">Data de nascimento é obrigatória.</small>
     </div>

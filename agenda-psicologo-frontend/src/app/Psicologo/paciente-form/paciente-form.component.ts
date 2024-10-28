@@ -8,7 +8,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { Consulta } from '../../class/Consulta';
 import { Disponibilidade } from '../../class/Disponibilidade';
-import { Paciente } from '../../class/Paciente';
 import { SemanaPipe } from '../../pipes/semana/semana.pipe';
 
 @Component({
@@ -253,14 +252,40 @@ export class PacienteFormComponent implements OnInit {
     );
   }
 
-  private updateConsultas(pacienteId: number, disponibilidadeId: number): void {
-    this.consultaService.getConsultaByPacienteId(pacienteId).subscribe((consultas: Consulta[]) => {
-      consultas.forEach(consulta => {
+ private updateConsultas(pacienteId: number, disponibilidadeId: number): void {
+  this.disponibilidadeService.getDisponibilidade(disponibilidadeId).subscribe((disponibilidade) => {
+    // Calculate the next available date for the new availability
+    const diasSemana: { [key: string]: number } = {
+      'domingo': 0,
+      'segunda': 1,
+      'terça': 2,
+      'quarta': 3,
+      'quinta': 4,
+      'sexta': 5,
+      'sábado': 6
+    };
 
-        // Atualiza a consulta para associar a nova disponibilidade
+    const diaSemana = diasSemana[disponibilidade.dia_semana.toLowerCase()];
+    const hoje = new Date();
+    let proximaData = new Date();
+    proximaData.setDate(hoje.getDate() + ((6 + diaSemana - hoje.getDay()) % 7));
+    proximaData.setHours(
+      parseInt(disponibilidade.horario_inicio.split(':')[0]),
+      parseInt(disponibilidade.horario_inicio.split(':')[1])
+    );
+
+    // Fetch the consultations for the patient and update them
+    this.consultaService.getConsultaByPacienteId(pacienteId).subscribe((consultas: Consulta[]) => {
+      consultas.forEach((consulta, index) => {
+        // Set the new availability ID
         consulta.disponibilidade.id = disponibilidadeId;
 
-        // Atualiza a consulta no serviço
+        // Update the date of the consultation for each week
+        const dataConsulta = new Date(proximaData);
+        dataConsulta.setDate(proximaData.getDate() + (7 * index)); // Increment week by week for each consultation
+        consulta.data = dataConsulta.toISOString(); // Set the new date
+
+        // Update the consultation in the service
         this.consultaService.updateConsulta(consulta.id!, consulta).subscribe(
           () => {
             this.snackBar.open('Consulta atualizada com sucesso!', 'Fechar', { duration: 3000 });
@@ -271,7 +296,8 @@ export class PacienteFormComponent implements OnInit {
         );
       });
     });
-  }
+  });
+}
 
 
 

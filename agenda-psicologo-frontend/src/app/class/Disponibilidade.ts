@@ -1,5 +1,3 @@
-import { Paciente } from "./Paciente";
-
 export class Disponibilidade {
   id?: number;
   dia_semana: string;

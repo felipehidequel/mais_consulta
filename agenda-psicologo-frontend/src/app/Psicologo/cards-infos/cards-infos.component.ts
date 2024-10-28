@@ -31,10 +31,10 @@ export class CardsInfosComponent implements OnInit, OnChanges {
   calcularEstatisticas() {
     const dataAtual = new Date(); // Data atual para comparar os atendimentos
   
-  
     // Filtro dos atendimentos do dia atual
     this.quantidadeAtendimentos = this.atendimentos.filter(atendimento => {
-      const dataAtendimento = new Date(atendimento.data); // Converte a data do atendimento
+      const [year, month, day] = atendimento.data.split('T')[0].split('-').map(Number); // Extrai ano, mês e dia
+      const dataAtendimento = new Date(year, month - 1, day); // Mês no JavaScript é 0-indexado
       return (
         dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
         dataAtendimento.getMonth() === dataAtual.getMonth() &&
@@ -42,32 +42,32 @@ export class CardsInfosComponent implements OnInit, OnChanges {
       );
     }).length;
   
-  
     // Atualiza os horários disponíveis (padrão 8 menos os atendimentos do dia)
-    this.quantidadeDisponiveis = 8 - this.quantidadeAtendimentos; // Corrigido aqui
+    this.quantidadeDisponiveis = 8 - this.quantidadeAtendimentos;
   
     // Contagem de pacientes atendidos (presença = true)
     this.pacientesAtendidos = this.atendimentos.filter(atendimento => {
-      const dataAtendimento = new Date(atendimento.data); // Filtro por data do atendimento
+      const [year, month, day] = atendimento.data.split('T')[0].split('-').map(Number); // Extrai ano, mês e dia
+      const dataAtendimento = new Date(year, month - 1, day);
       return (
         dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
         dataAtendimento.getMonth() === dataAtual.getMonth() &&
         dataAtendimento.getDate() === dataAtual.getDate() &&
-        atendimento.presenca === true // Apenas pacientes presentes
+        atendimento.presenca === true
       );
     }).length;
-  
   
     // Contagem de pacientes ausentes (presença = false)
     this.pacientesAusentes = this.atendimentos.filter(atendimento => {
-      const dataAtendimento = new Date(atendimento.data); // Filtro por data do atendimento
+      const [year, month, day] = atendimento.data.split('T')[0].split('-').map(Number); // Extrai ano, mês e dia
+      const dataAtendimento = new Date(year, month - 1, day);
       return (
         dataAtendimento.getFullYear() === dataAtual.getFullYear() &&
         dataAtendimento.getMonth() === dataAtual.getMonth() &&
         dataAtendimento.getDate() === dataAtual.getDate() &&
-        atendimento.presenca === false // Apenas pacientes ausentes
+        atendimento.presenca === false
       );
     }).length;
-  
   }
+  
 }

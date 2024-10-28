@@ -1,19 +1,7 @@
-import { Paciente } from '../../../class/Paciente';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Disponibilidade } from '../../../class/Disponibilidade';
 import { Consulta } from '../../../class/Consulta';
-
-interface Atendimento {
-  inicio: string;
-  fim: string;
-  paciente: Paciente;
-  status: string;
-  id: number;
-  presenca: boolean | null;
-  disponibilidade?: Disponibilidade;
-}
 
 @Component({
   selector: 'app-atendimento',
@@ -23,7 +11,7 @@ interface Atendimento {
   styleUrls: ['./atendimento.component.scss']
 })
 export class AtendimentoComponent {
-  @Input() atendimento: Atendimento | null = null;
+  @Input() atendimento: Consulta | null = null;
 
   constructor(private http: HttpClient) { }
 

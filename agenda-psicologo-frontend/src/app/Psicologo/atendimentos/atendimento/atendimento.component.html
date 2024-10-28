@@ -13,16 +13,18 @@
       'status-cancelado': atendimento?.status === 'CANCELADO'
     }">{{ atendimento?.status ?? 'Status não disponível' }}</p>
     <div class="input-paciente w25" >
-      <img *ngIf="atendimento" src="../../../assets/akar-icons_check-box-fill.svg" class="custom-icon"
-      (click)="atendimento.status === 'CONFIRMADO' ? atualizarPresenca(atendimento.id, true) : null" 
+      <img *ngIf="atendimento && atendimento.id" src="../../../assets/akar-icons_check-box-fill.svg" class="custom-icon"
+      (click)="atendimento.status === 'CONFIRMADO' ? atualizarPresenca(atendimento.id!, true) : null" 
       alt="Presente" [ngClass]="{
         'input-paciente-disable': atendimento?.status != 'CONFIRMADO',
       }">
-
-      <img *ngIf="atendimento" src="../../../assets/akar-icons_check-box-fil-xl.svg" class="custom-icon"
-      (click)="atendimento.status === 'CONFIRMADO' ? atualizarPresenca(atendimento.id, false) : null" alt="Ausente"[ngClass]="{
+ 
+ <img *ngIf="atendimento && atendimento.id" src="../../../assets/akar-icons_check-box-fil-xl.svg" class="custom-icon"
+      (click)="atendimento.status === 'CONFIRMADO' ? atualizarPresenca(atendimento.id!, false) : null" 
+      alt="Ausente" [ngClass]="{
         'input-paciente-disable': atendimento?.status != 'CONFIRMADO',
       }">
+ 
     </div>
   </div>
 </section>

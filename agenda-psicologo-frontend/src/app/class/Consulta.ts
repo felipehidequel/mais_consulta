@@ -7,11 +7,11 @@ export class Consulta {
   status: string;
   data: string;
   disponibilidade: Disponibilidade;
-  presenca?: boolean;
+  presenca?: boolean | null;
 
   constructor(paciente: Paciente, status: string, data: string, disponibilidade: Disponibilidade, presenca?: boolean) {
     this.paciente = paciente;
-    this.status = status; // Adicionando a inicialização da propriedade 'status'
+    this.status = status;
     this.data = data;
     this.disponibilidade = disponibilidade;
     this.presenca = presenca;

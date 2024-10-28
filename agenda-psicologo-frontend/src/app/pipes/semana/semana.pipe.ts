@@ -9,7 +9,7 @@ export class SemanaPipe implements PipeTransform {
 
   private diasSemana: { [key: string]: string } = {
     'segunda': 'Segunda-Feira',
-    'terca': 'Terça-Feira',
+    'terça': 'Terça-Feira',
     'quarta': 'Quarta-Feira',
     'quinta': 'Quinta-Feira',
     'sexta': 'Sexta-Feira',

@@ -7,7 +7,11 @@
   </div>
   <div class="prox-atendimentos">
     <ng-container *ngFor="let atendimento of atendimentos">
-      <app-historico-atendimento *ngIf="atendimento.presenca !== null" [atendimento]="atendimento"></app-historico-atendimento>
+      <app-historico-atendimento 
+        *ngIf="atendimento.presenca !== null" 
+        [atendimento]="atendimento">
+      </app-historico-atendimento>
     </ng-container>
   </div>
+  
 </section>
