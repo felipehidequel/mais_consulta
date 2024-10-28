@@ -2,6 +2,13 @@
 
 Sistema para gerenciamento de agenda para um psicologo
 
+## Requisitos
+
+* Python3+
+* Flask
+* Peewee orm
+* Angular
+
 ## Rodar API
 ```shell
 python3 virtualenv venv
